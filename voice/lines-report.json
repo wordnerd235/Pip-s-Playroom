@@ -1,0 +1,344 @@
+[
+ {
+  "class": "noun",
+  "template": "Can you find the {v}?",
+  "seen": 6,
+  "added": 154
+ },
+ {
+  "class": "noun",
+  "template": "There's the {v}!",
+  "seen": 9,
+  "added": 151
+ },
+ {
+  "class": "noun",
+  "template": "Find the {v}!",
+  "seen": 10,
+  "added": 149
+ },
+ {
+  "class": "noun",
+  "template": "Where's the {v}?",
+  "seen": 16,
+  "added": 143
+ },
+ {
+  "class": "noun",
+  "template": "The {v}!",
+  "seen": 25,
+  "added": 134
+ },
+ {
+  "class": "noun",
+  "template": "Tap the {v}!",
+  "seen": 16,
+  "added": 131
+ },
+ {
+  "class": "noun",
+  "template": "That's {a}.",
+  "seen": 33,
+  "added": 122
+ },
+ {
+  "class": "noun",
+  "template": "Listen to the {v}!",
+  "seen": 4,
+  "added": 73
+ },
+ {
+  "class": "noun",
+  "template": "That's the {v}.",
+  "seen": 4,
+  "added": 73
+ },
+ {
+  "class": "noun",
+  "template": "{A}!",
+  "seen": 56,
+  "added": 64
+ },
+ {
+  "class": "color",
+  "template": "Can you pop {a} balloon?",
+  "seen": 2,
+  "added": 9
+ },
+ {
+  "class": "color",
+  "template": "{V} balloons!",
+  "seen": 2,
+  "added": 9
+ },
+ {
+  "class": "color",
+  "template": "The {v} one!",
+  "seen": 2,
+  "added": 9
+ },
+ {
+  "class": "color",
+  "template": "You popped {v}!",
+  "seen": 2,
+  "added": 9
+ },
+ {
+  "class": "number",
+  "template": "{V} fish!",
+  "seen": 2,
+  "added": 8
+ },
+ {
+  "class": "noun",
+  "template": "The {v} says {s}!",
+  "seen": 35,
+  "added": 7
+ },
+ {
+  "class": "color",
+  "template": "Can you find {v}?",
+  "seen": 5,
+  "added": 6
+ },
+ {
+  "class": "shape",
+  "template": "That's {a}.",
+  "seen": 2,
+  "added": 6
+ },
+ {
+  "class": "color",
+  "template": "Pop {a} balloon!",
+  "seen": 7,
+  "added": 5
+ },
+ {
+  "class": "color",
+  "template": "{A} cherry!",
+  "seen": 3,
+  "added": 3
+ },
+ {
+  "class": "number",
+  "template": "Pop number {v}!",
+  "seen": 7,
+  "added": 3
+ },
+ {
+  "class": "number",
+  "template": "{V}",
+  "seen": 9,
+  "added": 1
+ },
+ {
+  "class": "number",
+  "template": "{V} bees!",
+  "seen": 2,
+  "added": 1
+ },
+ {
+  "class": "number",
+  "template": "{V} apples!",
+  "seen": 2,
+  "added": 1
+ },
+ {
+  "class": "color",
+  "template": "{V} fish, {v} box!",
+  "seen": 4,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "{V} ball, {v} box!",
+  "seen": 3,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "{V} boat, {v} box!",
+  "seen": 4,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "{V} block!",
+  "seen": 4,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "{V} block, {v} box!",
+  "seen": 4,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "{V} car!",
+  "seen": 5,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "{V} car, {v} box!",
+  "seen": 5,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "{V} duck, {v} box!",
+  "seen": 5,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "{V} heart!",
+  "seen": 4,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "{V} heart, {v} box!",
+  "seen": 5,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "{V} star!",
+  "seen": 3,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "{V}!",
+  "seen": 9,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "{V} boat!",
+  "seen": 2,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "Find the {v} box!",
+  "seen": 5,
+  "added": 0
+ },
+ {
+  "class": "shape",
+  "template": "{V}!",
+  "seen": 8,
+  "added": 0
+ },
+ {
+  "class": "number",
+  "template": "{V}!",
+  "seen": 10,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "Find something {v}!",
+  "seen": 6,
+  "added": 0
+ },
+ {
+  "class": "shape",
+  "template": "Find the {v} hole!",
+  "seen": 8,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "{V} star, {v} box!",
+  "seen": 5,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "{V} duck!",
+  "seen": 3,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "{V} fish!",
+  "seen": 3,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "{V} ball!",
+  "seen": 3,
+  "added": 0
+ },
+ {
+  "class": "shape",
+  "template": "Put the {v} in its hole!",
+  "seen": 5,
+  "added": 0
+ },
+ {
+  "class": "shape",
+  "template": "Where is the {v}?",
+  "seen": 2,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "That's the {v} box.",
+  "seen": 8,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "Where does {v} go?",
+  "seen": 7,
+  "added": 0
+ },
+ {
+  "class": "shape",
+  "template": "That's the {v} hole.",
+  "seen": 8,
+  "added": 0
+ },
+ {
+  "class": "shape",
+  "template": "The {v} hole!",
+  "seen": 8,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "Where does the {v} duck go?",
+  "seen": 2,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "Where does the {v} fish go?",
+  "seen": 3,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "Where does the {v} car go?",
+  "seen": 3,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "Where does the {v} star go?",
+  "seen": 3,
+  "added": 0
+ },
+ {
+  "class": "color",
+  "template": "Where does the {v} block go?",
+  "seen": 2,
+  "added": 0
+ }
+]

@@ -1,0 +1,2 @@
+# Hand-added lines for the voice pack (one per row). Paste the list from Pip settings → "Copy missing lines" here,
+# then run: python3 tools/make_clips.py

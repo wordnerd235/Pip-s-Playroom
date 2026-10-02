@@ -1,0 +1,9 @@
+.kokoro/
+.voice-cache/
+.venv/
+node_modules/
+shots/
+build/
+dist/
+voice/preview/
+__pycache__/
