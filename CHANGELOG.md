@@ -9,6 +9,10 @@ git diff origin/release/v1.0 origin/release/v1.1 -- src/   # what changed in the
 git checkout origin/release/v1.0 -- docs/                  # put an older build back on GitHub Pages (then commit + push)
 ```
 
+## v1.1.1 (2026-11-05)
+- **Home screen:** tapping a game cut off Pip's voice as it announced the game ("Bal—"). The game opened 420 ms after the tap, and opening a game stops speech. Now the game opens as soon as Pip finishes saying its name (about 1 s), and never waits longer than 2.5 s if speech hangs.
+- When a game fails to start, "Oops! Let's play something else." is no longer cut off by the return to the home screen.
+
 ## v1.1 — bug-fix pass (2026-11-05)
 
 ### App and engine

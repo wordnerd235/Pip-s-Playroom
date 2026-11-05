@@ -166,14 +166,17 @@
         PP.audio.sfx('tap');
         tile.classList.add('pressed');
         homePip.mood('happy');
-        PP.speech.say(g.title + '!');
-        setTimeout(() => {
+        // Opening a game stops speech, so let Pip finish saying the game's name first ("Balloons!"), but
+        // never wait long if speech hangs (iOS onend can be late).
+        const said = PP.speech.say(g.title + '!');
+        const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+        Promise.all([wait(420), Promise.race([said, wait(2500)])]).then(() => {
           delete tile.dataset.busy;
           tile.classList.remove('pressed');
           opening = false;
           // still on the home screen? (a parent may have opened the sticker book or settings meanwhile)
           if (!app.current && !app.overlayPromise) app.openGame(g.id);
-        }, 420);
+        });
       });
       gridEl.appendChild(tile);
     });
@@ -206,8 +209,9 @@
       app.current.inst = game.create(stageEl, ctx) || {};
     } catch (e) {
       console.error('Game crashed on start:', id, e);
-      PP.speech.say('Oops! Let’s play something else.');
-      setTimeout(() => app.goHome(), 600);
+      // going home stops speech, so let the line finish first (with a cap in case speech hangs)
+      const said = PP.speech.say('Oops! Let’s play something else.');
+      Promise.race([said, new Promise((r) => setTimeout(r, 3000))]).then(() => { if (app.current && app.current.game === game) app.goHome(); });
     }
     PP.bus.emit('game:open', id);
   };
