@@ -1,7 +1,7 @@
 {
  "name": null,
- "count": 3287,
- "chars": 55357,
+ "count": 3461,
+ "chars": 56941,
  "nameTemplates": [
   "Hi {name}!",
   "Time for a break, {name}!",
@@ -68,8 +68,8 @@
    "text": "A black ball!"
   },
   {
-   "key": "a black cherry!",
-   "text": "A black cherry!"
+   "key": "a black balloon!",
+   "text": "A black balloon!"
   },
   {
    "key": "a black hat!",
@@ -192,6 +192,10 @@
    "text": "A blue tail!"
   },
   {
+   "key": "a blue water drop!",
+   "text": "A blue water drop!"
+  },
+  {
    "key": "a blue water!",
    "text": "A blue water!"
   },
@@ -218,6 +222,10 @@
   {
    "key": "a book!",
    "text": "A book!"
+  },
+  {
+   "key": "a brown balloon!",
+   "text": "A brown balloon!"
   },
   {
    "key": "a brown bear!",
@@ -508,8 +516,12 @@
    "text": "A goat!"
   },
   {
-   "key": "a gray cherry!",
-   "text": "A gray cherry!"
+   "key": "a gray balloon!",
+   "text": "A gray balloon!"
+  },
+  {
+   "key": "a green balloon!",
+   "text": "A green balloon!"
   },
   {
    "key": "a green boat!",
@@ -784,6 +796,10 @@
    "text": "A pineapple!"
   },
   {
+   "key": "a pink balloon!",
+   "text": "A pink balloon!"
+  },
+  {
    "key": "a pink boat!",
    "text": "A pink boat!"
   },
@@ -938,6 +954,10 @@
   {
    "key": "a puppy!",
    "text": "A puppy!"
+  },
+  {
+   "key": "a purple balloon!",
+   "text": "A purple balloon!"
   },
   {
    "key": "a purple boat!",
@@ -1364,8 +1384,8 @@
    "text": "A whale!"
   },
   {
-   "key": "a white cherry!",
-   "text": "A white cherry!"
+   "key": "a white balloon!",
+   "text": "A white balloon!"
   },
   {
    "key": "a white cloud!",
@@ -1386,6 +1406,10 @@
   {
    "key": "a wolf!",
    "text": "A wolf!"
+  },
+  {
+   "key": "a yellow balloon!",
+   "text": "A yellow balloon!"
   },
   {
    "key": "a yellow banana!",
@@ -1536,6 +1560,10 @@
    "text": "Ahhh!"
   },
   {
+   "key": "airplane!",
+   "text": "Airplane!"
+  },
+  {
    "key": "all in!",
    "text": "All in!"
   },
@@ -1554,6 +1582,10 @@
   {
    "key": "amazing!",
    "text": "Amazing!"
+  },
+  {
+   "key": "ambulance!",
+   "text": "Ambulance!"
   },
   {
    "key": "an airplane!",
@@ -1598,6 +1630,10 @@
   {
    "key": "an orange ball!",
    "text": "An orange ball!"
+  },
+  {
+   "key": "an orange balloon!",
+   "text": "An orange balloon!"
   },
   {
    "key": "an orange boat!",
@@ -1752,20 +1788,64 @@
    "text": "Animal Band!"
   },
   {
+   "key": "apple!",
+   "text": "Apple!"
+  },
+  {
+   "key": "arm!",
+   "text": "Arm!"
+  },
+  {
+   "key": "arms!",
+   "text": "Arms!"
+  },
+  {
+   "key": "avocado!",
+   "text": "Avocado!"
+  },
+  {
    "key": "awesome!",
    "text": "Awesome!"
+  },
+  {
+   "key": "ball!",
+   "text": "Ball!"
   },
   {
    "key": "balloon party!",
    "text": "Balloon party!"
   },
   {
+   "key": "balloon!",
+   "text": "Balloon!"
+  },
+  {
    "key": "balloons!",
    "text": "Balloons!"
   },
   {
+   "key": "banana!",
+   "text": "Banana!"
+  },
+  {
    "key": "bass drum!",
    "text": "Bass drum!"
+  },
+  {
+   "key": "bathtub!",
+   "text": "Bathtub!"
+  },
+  {
+   "key": "bear!",
+   "text": "Bear!"
+  },
+  {
+   "key": "bed!",
+   "text": "Bed!"
+  },
+  {
+   "key": "bee!",
+   "text": "Bee!"
   },
   {
    "key": "beep beep!",
@@ -1774,6 +1854,18 @@
   {
    "key": "bend, bend!",
    "text": "Bend, bend!"
+  },
+  {
+   "key": "big dinosaur!",
+   "text": "Big dinosaur!"
+  },
+  {
+   "key": "bike!",
+   "text": "Bike!"
+  },
+  {
+   "key": "bird!",
+   "text": "Bird!"
   },
   {
    "key": "black ball, black box!",
@@ -2052,10 +2144,6 @@
    "text": "Blue teddy!"
   },
   {
-   "key": "blue water drop!",
-   "text": "Blue water drop!"
-  },
-  {
    "key": "blue water!",
    "text": "Blue water!"
   },
@@ -2084,6 +2172,10 @@
    "text": "Bo is so happy!"
   },
   {
+   "key": "boat!",
+   "text": "Boat!"
+  },
+  {
    "key": "body parts!",
    "text": "Body Parts!"
   },
@@ -2092,12 +2184,20 @@
    "text": "Boing!"
   },
   {
+   "key": "book!",
+   "text": "Book!"
+  },
+  {
    "key": "boom, boom!",
    "text": "Boom, boom!"
   },
   {
    "key": "boots!",
    "text": "Boots!"
+  },
+  {
+   "key": "bravo!",
+   "text": "Bravo!"
   },
   {
    "key": "bread!",
@@ -2300,8 +2400,24 @@
    "text": "Bubbles!"
   },
   {
+   "key": "bunny!",
+   "text": "Bunny!"
+  },
+  {
+   "key": "bus!",
+   "text": "Bus!"
+  },
+  {
+   "key": "butterfly!",
+   "text": "Butterfly!"
+  },
+  {
    "key": "buzz!",
    "text": "Buzz!"
+  },
+  {
+   "key": "bye bye, ladybug!",
+   "text": "Bye bye, ladybug!"
   },
   {
    "key": "bye bye!",
@@ -2310,6 +2426,14 @@
   {
    "key": "bye-bye!",
    "text": "Bye-bye!"
+  },
+  {
+   "key": "cactus!",
+   "text": "Cactus!"
+  },
+  {
+   "key": "cake!",
+   "text": "Cake!"
   },
   {
    "key": "can you clap your hands?",
@@ -3008,6 +3132,10 @@
    "text": "Can you open your mouth?"
   },
   {
+   "key": "can you pat your tummy?",
+   "text": "Can you pat your tummy?"
+  },
+  {
    "key": "can you pop a black balloon?",
    "text": "Can you pop a black balloon?"
   },
@@ -3056,6 +3184,30 @@
    "text": "Can you touch your ears?"
   },
   {
+   "key": "can you touch your nose?",
+   "text": "Can you touch your nose?"
+  },
+  {
+   "key": "car!",
+   "text": "Car!"
+  },
+  {
+   "key": "carrot!",
+   "text": "Carrot!"
+  },
+  {
+   "key": "castle!",
+   "text": "Castle!"
+  },
+  {
+   "key": "cat!",
+   "text": "Cat!"
+  },
+  {
+   "key": "chair!",
+   "text": "Chair!"
+  },
+  {
    "key": "cheeks!",
    "text": "Cheeks!"
   },
@@ -3068,6 +3220,10 @@
    "text": "Cherries!"
   },
   {
+   "key": "chicken!",
+   "text": "Chicken!"
+  },
+  {
    "key": "circle!",
    "text": "Circle!"
   },
@@ -3076,12 +3232,24 @@
    "text": "Clap clap!"
   },
   {
+   "key": "clock!",
+   "text": "Clock!"
+  },
+  {
    "key": "close the doors!",
    "text": "Close the doors!"
   },
   {
+   "key": "cloud!",
+   "text": "Cloud!"
+  },
+  {
    "key": "cluck cluck!",
    "text": "Cluck cluck!"
+  },
+  {
+   "key": "coat!",
+   "text": "Coat!"
   },
   {
    "key": "cock-a-doodle-doo!",
@@ -3090,6 +3258,10 @@
   {
    "key": "color sort!",
    "text": "Color Sort!"
+  },
+  {
+   "key": "cookie!",
+   "text": "Cookie!"
   },
   {
    "key": "corn!",
@@ -3120,12 +3292,32 @@
    "text": "Count the stars!"
   },
   {
+   "key": "count with me!",
+   "text": "Count with me!"
+  },
+  {
    "key": "count!",
    "text": "Count!"
   },
   {
+   "key": "cow!",
+   "text": "Cow!"
+  },
+  {
+   "key": "crab!",
+   "text": "Crab!"
+  },
+  {
    "key": "crash, crash!",
    "text": "Crash, crash!"
+  },
+  {
+   "key": "crayon!",
+   "text": "Crayon!"
+  },
+  {
+   "key": "crown!",
+   "text": "Crown!"
   },
   {
    "key": "crunch crunch!",
@@ -3136,6 +3328,14 @@
    "text": "Crunch!"
   },
   {
+   "key": "cup!",
+   "text": "Cup!"
+  },
+  {
+   "key": "cupcake!",
+   "text": "Cupcake!"
+  },
+  {
    "key": "cymbal!",
    "text": "Cymbal!"
   },
@@ -3144,12 +3344,52 @@
    "text": "Diamond!"
   },
   {
+   "key": "dinosaur!",
+   "text": "Dinosaur!"
+  },
+  {
+   "key": "dog!",
+   "text": "Dog!"
+  },
+  {
+   "key": "donut!",
+   "text": "Donut!"
+  },
+  {
+   "key": "door!",
+   "text": "Door!"
+  },
+  {
+   "key": "dragon!",
+   "text": "Dragon!"
+  },
+  {
+   "key": "dress!",
+   "text": "Dress!"
+  },
+  {
+   "key": "drum!",
+   "text": "Drum!"
+  },
+  {
    "key": "drums!",
    "text": "Drums!"
   },
   {
+   "key": "duck!",
+   "text": "Duck!"
+  },
+  {
+   "key": "ear!",
+   "text": "Ear!"
+  },
+  {
    "key": "ears!",
    "text": "Ears!"
+  },
+  {
+   "key": "egg!",
+   "text": "Egg!"
   },
   {
    "key": "eight",
@@ -3188,8 +3428,16 @@
    "text": "Eight!"
   },
   {
+   "key": "elephant!",
+   "text": "Elephant!"
+  },
+  {
    "key": "everybody came out!",
    "text": "Everybody came out!"
+  },
+  {
+   "key": "eye!",
+   "text": "Eye!"
   },
   {
    "key": "eyebrows!",
@@ -4008,6 +4256,14 @@
    "text": "Find the zebra!"
   },
   {
+   "key": "fire truck!",
+   "text": "Fire truck!"
+  },
+  {
+   "key": "fish!",
+   "text": "Fish!"
+  },
+  {
    "key": "five",
    "text": "Five"
   },
@@ -4044,12 +4300,24 @@
    "text": "Five!"
   },
   {
+   "key": "flap flap!",
+   "text": "Flap flap!"
+  },
+  {
    "key": "flap, flap!",
    "text": "Flap, flap!"
   },
   {
+   "key": "flower!",
+   "text": "Flower!"
+  },
+  {
    "key": "fly, butterfly!",
    "text": "Fly, butterfly!"
+  },
+  {
+   "key": "foot!",
+   "text": "Foot!"
   },
   {
    "key": "four",
@@ -4088,8 +4356,24 @@
    "text": "Four!"
   },
   {
+   "key": "fox!",
+   "text": "Fox!"
+  },
+  {
+   "key": "frog!",
+   "text": "Frog!"
+  },
+  {
+   "key": "giraffe!",
+   "text": "Giraffe!"
+  },
+  {
    "key": "glasses!",
    "text": "Glasses!"
+  },
+  {
+   "key": "goat!",
+   "text": "Goat!"
   },
   {
    "key": "good job!",
@@ -4380,12 +4664,20 @@
    "text": "Green!"
   },
   {
+   "key": "guitar!",
+   "text": "Guitar!"
+  },
+  {
    "key": "gulp gulp!",
    "text": "Gulp gulp!"
   },
   {
    "key": "hair!",
    "text": "Hair!"
+  },
+  {
+   "key": "hand!",
+   "text": "Hand!"
   },
   {
    "key": "hands!",
@@ -4396,6 +4688,10 @@
    "text": "Happy Birthday!"
   },
   {
+   "key": "hat!",
+   "text": "Hat!"
+  },
+  {
    "key": "head!",
    "text": "Head!"
   },
@@ -4404,12 +4700,20 @@
    "text": "Heart!"
   },
   {
+   "key": "hedgehog!",
+   "text": "Hedgehog!"
+  },
+  {
    "key": "hee hee hee!",
    "text": "Hee hee hee!"
   },
   {
    "key": "hee hee!",
    "text": "Hee hee!"
+  },
+  {
+   "key": "helicopter!",
+   "text": "Helicopter!"
   },
   {
    "key": "hello, sun!",
@@ -4448,8 +4752,16 @@
    "text": "Hop hop!"
   },
   {
+   "key": "horse!",
+   "text": "Horse!"
+  },
+  {
    "key": "hot cross buns!",
    "text": "Hot Cross Buns!"
+  },
+  {
+   "key": "house!",
+   "text": "House!"
   },
   {
    "key": "how many apples?",
@@ -4524,16 +4836,56 @@
    "text": "Juice!"
   },
   {
+   "key": "just like bo!",
+   "text": "Just like Bo!"
+  },
+  {
    "key": "keep playing!",
    "text": "Keep playing!"
+  },
+  {
+   "key": "key!",
+   "text": "Key!"
+  },
+  {
+   "key": "kite!",
+   "text": "Kite!"
+  },
+  {
+   "key": "kitty!",
+   "text": "Kitty!"
+  },
+  {
+   "key": "knees!",
+   "text": "Knees!"
   },
   {
    "key": "knock knock!",
    "text": "Knock knock!"
   },
   {
+   "key": "koala!",
+   "text": "Koala!"
+  },
+  {
+   "key": "ladybug!",
+   "text": "Ladybug!"
+  },
+  {
+   "key": "leaf!",
+   "text": "Leaf!"
+  },
+  {
+   "key": "leg!",
+   "text": "Leg!"
+  },
+  {
    "key": "legs!",
    "text": "Legs!"
+  },
+  {
+   "key": "lemon!",
+   "text": "Lemon!"
   },
   {
    "key": "let's count down!",
@@ -5716,6 +6068,14 @@
    "text": "Let's sort colors!"
   },
   {
+   "key": "light!",
+   "text": "Light!"
+  },
+  {
+   "key": "lion!",
+   "text": "Lion!"
+  },
+  {
    "key": "listen again!",
    "text": "Listen again!"
   },
@@ -6080,8 +6440,16 @@
    "text": "Mittens!"
   },
   {
+   "key": "monkey!",
+   "text": "Monkey!"
+  },
+  {
    "key": "moo!",
    "text": "Moo!"
+  },
+  {
+   "key": "moon!",
+   "text": "Moon!"
   },
   {
    "key": "more doors!",
@@ -6100,8 +6468,24 @@
    "text": "More shapes!"
   },
   {
+   "key": "motorcycle!",
+   "text": "Motorcycle!"
+  },
+  {
+   "key": "mountain!",
+   "text": "Mountain!"
+  },
+  {
+   "key": "mouse!",
+   "text": "Mouse!"
+  },
+  {
    "key": "mouth!",
    "text": "Mouth!"
+  },
+  {
+   "key": "mushroom!",
+   "text": "Mushroom!"
   },
   {
    "key": "new boxes!",
@@ -6168,6 +6552,10 @@
    "text": "Now help me find…"
   },
   {
+   "key": "now let's find food!",
+   "text": "Now let's find food!"
+  },
+  {
    "key": "now let's find things that go!",
    "text": "Now let's find things that go!"
   },
@@ -6188,6 +6576,10 @@
    "text": "Now they hide!"
   },
   {
+   "key": "octopus!",
+   "text": "Octopus!"
+  },
+  {
    "key": "old macdonald had a farm!",
    "text": "Old MacDonald Had a Farm!"
   },
@@ -6200,16 +6592,8 @@
    "text": "One apple!"
   },
   {
-   "key": "one apples!",
-   "text": "One apples!"
-  },
-  {
    "key": "one bee!",
    "text": "One bee!"
-  },
-  {
-   "key": "one bees!",
-   "text": "One bees!"
   },
   {
    "key": "one candle!",
@@ -6440,6 +6824,10 @@
    "text": "Oval!"
   },
   {
+   "key": "owl!",
+   "text": "Owl!"
+  },
+  {
    "key": "paint!",
    "text": "Paint!"
   },
@@ -6448,16 +6836,44 @@
    "text": "Pancakes!"
   },
   {
+   "key": "panda!",
+   "text": "Panda!"
+  },
+  {
    "key": "pants!",
    "text": "Pants!"
+  },
+  {
+   "key": "parrot!",
+   "text": "Parrot!"
+  },
+  {
+   "key": "pear!",
+   "text": "Pear!"
   },
   {
    "key": "peekaboo!",
    "text": "Peekaboo!"
   },
   {
+   "key": "penguin!",
+   "text": "Penguin!"
+  },
+  {
+   "key": "phone!",
+   "text": "Phone!"
+  },
+  {
    "key": "pick a game!",
    "text": "Pick a game!"
+  },
+  {
+   "key": "pig!",
+   "text": "Pig!"
+  },
+  {
+   "key": "pineapple!",
+   "text": "Pineapple!"
   },
   {
    "key": "pink ball, pink box!",
@@ -6648,12 +7064,20 @@
    "text": "Pink!"
   },
   {
+   "key": "pizza!",
+   "text": "Pizza!"
+  },
+  {
    "key": "play games to win stickers!",
    "text": "Play games to win stickers!"
   },
   {
    "key": "plonk!",
    "text": "Plonk!"
+  },
+  {
+   "key": "police car!",
+   "text": "Police car!"
   },
   {
    "key": "pop a black balloon!",
@@ -6768,12 +7192,24 @@
    "text": "Popcorn!"
   },
   {
+   "key": "potato!",
+   "text": "Potato!"
+  },
+  {
+   "key": "present!",
+   "text": "Present!"
+  },
+  {
    "key": "pretty!",
    "text": "Pretty!"
   },
   {
    "key": "puff!",
    "text": "Puff!"
+  },
+  {
+   "key": "puppy!",
+   "text": "Puppy!"
   },
   {
    "key": "purple ball, purple box!",
@@ -7016,8 +7452,16 @@
    "text": "Quick game!"
   },
   {
+   "key": "race car!",
+   "text": "Race car!"
+  },
+  {
    "key": "rain!",
    "text": "Rain!"
+  },
+  {
+   "key": "rainbow!",
+   "text": "Rainbow!"
   },
   {
    "key": "ready?",
@@ -7228,8 +7672,20 @@
    "text": "Ring ring!"
   },
   {
+   "key": "robot!",
+   "text": "Robot!"
+  },
+  {
+   "key": "rock!",
+   "text": "Rock!"
+  },
+  {
    "key": "rocket!",
    "text": "Rocket!"
+  },
+  {
+   "key": "rooster!",
+   "text": "Rooster!"
   },
   {
    "key": "row, row, row your boat!",
@@ -7240,8 +7696,24 @@
    "text": "Sail away, little boat!"
   },
   {
+   "key": "sailboat!",
+   "text": "Sailboat!"
+  },
+  {
+   "key": "sandwich!",
+   "text": "Sandwich!"
+  },
+  {
    "key": "say cheese!",
    "text": "Say cheese!"
+  },
+  {
+   "key": "scarf!",
+   "text": "Scarf!"
+  },
+  {
+   "key": "scooter!",
+   "text": "Scooter!"
   },
   {
    "key": "see you soon!",
@@ -7300,8 +7772,24 @@
    "text": "Shapes!"
   },
   {
+   "key": "shark!",
+   "text": "Shark!"
+  },
+  {
+   "key": "sheep!",
+   "text": "Sheep!"
+  },
+  {
    "key": "shh…",
    "text": "Shh…"
+  },
+  {
+   "key": "shirt!",
+   "text": "Shirt!"
+  },
+  {
+   "key": "shoe!",
+   "text": "Shoe!"
   },
   {
    "key": "six",
@@ -7344,8 +7832,24 @@
    "text": "Slow…"
   },
   {
+   "key": "snake!",
+   "text": "Snake!"
+  },
+  {
    "key": "snare drum!",
    "text": "Snare drum!"
+  },
+  {
+   "key": "snowflake!",
+   "text": "Snowflake!"
+  },
+  {
+   "key": "snowman!",
+   "text": "Snowman!"
+  },
+  {
+   "key": "soap!",
+   "text": "Soap!"
   },
   {
    "key": "socks!",
@@ -7364,6 +7868,10 @@
    "text": "Splat!"
   },
   {
+   "key": "spoon!",
+   "text": "Spoon!"
+  },
+  {
    "key": "square!",
    "text": "Square!"
   },
@@ -7374,6 +7882,18 @@
   {
    "key": "stomp stomp!",
    "text": "Stomp stomp!"
+  },
+  {
+   "key": "strawberry!",
+   "text": "Strawberry!"
+  },
+  {
+   "key": "sun!",
+   "text": "Sun!"
+  },
+  {
+   "key": "sunflower!",
+   "text": "Sunflower!"
   },
   {
    "key": "sunny!",
@@ -7484,8 +8004,16 @@
    "text": "Tap the bird!"
   },
   {
+   "key": "tap the black one!",
+   "text": "Tap the black one!"
+  },
+  {
    "key": "tap the blocks!",
    "text": "Tap the blocks!"
+  },
+  {
+   "key": "tap the blue one!",
+   "text": "Tap the blue one!"
   },
   {
    "key": "tap the blueberries!",
@@ -7518,6 +8046,10 @@
   {
    "key": "tap the broccoli!",
    "text": "Tap the broccoli!"
+  },
+  {
+   "key": "tap the brown one!",
+   "text": "Tap the brown one!"
   },
   {
    "key": "tap the bubble!",
@@ -7756,6 +8288,14 @@
    "text": "Tap the grass!"
   },
   {
+   "key": "tap the gray one!",
+   "text": "Tap the gray one!"
+  },
+  {
+   "key": "tap the green one!",
+   "text": "Tap the green one!"
+  },
+  {
    "key": "tap the guitar!",
    "text": "Tap the guitar!"
   },
@@ -7948,6 +8488,10 @@
    "text": "Tap the pineapple!"
   },
   {
+   "key": "tap the pink one!",
+   "text": "Tap the pink one!"
+  },
+  {
    "key": "tap the pizza!",
    "text": "Tap the pizza!"
   },
@@ -7976,6 +8520,10 @@
    "text": "Tap the puppy!"
   },
   {
+   "key": "tap the purple one!",
+   "text": "Tap the purple one!"
+  },
+  {
    "key": "tap the race car!",
    "text": "Tap the race car!"
   },
@@ -7990,6 +8538,10 @@
   {
    "key": "tap the rectangle!",
    "text": "Tap the rectangle!"
+  },
+  {
+   "key": "tap the red one!",
+   "text": "Tap the red one!"
   },
   {
    "key": "tap the robot!",
@@ -8192,6 +8744,10 @@
    "text": "Tap the wheel!"
   },
   {
+   "key": "tap the white one!",
+   "text": "Tap the white one!"
+  },
+  {
    "key": "tap the window!",
    "text": "Tap the window!"
   },
@@ -8204,12 +8760,24 @@
    "text": "Tap the wolf!"
   },
   {
+   "key": "tap the yellow one!",
+   "text": "Tap the yellow one!"
+  },
+  {
    "key": "tap the zebra!",
    "text": "Tap the zebra!"
   },
   {
    "key": "tap, tap, tap!",
    "text": "Tap, tap, tap!"
+  },
+  {
+   "key": "taxi!",
+   "text": "Taxi!"
+  },
+  {
+   "key": "teddy bear!",
+   "text": "Teddy bear!"
   },
   {
    "key": "ten",
@@ -8310,6 +8878,10 @@
   {
    "key": "that's a blue hat.",
    "text": "That's a blue hat."
+  },
+  {
+   "key": "that's a blue water drop.",
+   "text": "That's a blue water drop."
   },
   {
    "key": "that's a blue whale.",
@@ -9012,30 +9584,6 @@
    "text": "That's an unicorn."
   },
   {
-   "key": "that's black sunglasses.",
-   "text": "That's black sunglasses."
-  },
-  {
-   "key": "that's blocks.",
-   "text": "That's blocks."
-  },
-  {
-   "key": "that's blue blueberries.",
-   "text": "That's blue blueberries."
-  },
-  {
-   "key": "that's blue jeans.",
-   "text": "That's blue jeans."
-  },
-  {
-   "key": "that's blue water drop.",
-   "text": "That's blue water drop."
-  },
-  {
-   "key": "that's blueberries.",
-   "text": "That's blueberries."
-  },
-  {
    "key": "that's bo's hair!",
    "text": "That's Bo's hair!"
   },
@@ -9056,10 +9604,6 @@
    "text": "That's Bo's tummy!"
   },
   {
-   "key": "that's boots.",
-   "text": "That's boots."
-  },
-  {
    "key": "that's bread.",
    "text": "That's bread."
   },
@@ -9072,20 +9616,20 @@
    "text": "That's cheese."
   },
   {
-   "key": "that's cherries.",
-   "text": "That's cherries."
-  },
-  {
    "key": "that's corn.",
    "text": "That's corn."
   },
   {
-   "key": "that's glasses.",
-   "text": "That's glasses."
+   "key": "that's eight.",
+   "text": "That's eight."
   },
   {
-   "key": "that's grapes.",
-   "text": "That's grapes."
+   "key": "that's five.",
+   "text": "That's five."
+  },
+  {
+   "key": "that's four.",
+   "text": "That's four."
   },
   {
    "key": "that's green broccoli.",
@@ -9104,36 +9648,32 @@
    "text": "That's milk."
   },
   {
-   "key": "that's mittens.",
-   "text": "That's mittens."
+   "key": "that's nine.",
+   "text": "That's nine."
   },
   {
-   "key": "that's pancakes.",
-   "text": "That's pancakes."
-  },
-  {
-   "key": "that's pants.",
-   "text": "That's pants."
+   "key": "that's one.",
+   "text": "That's one."
   },
   {
    "key": "that's popcorn.",
    "text": "That's popcorn."
   },
   {
-   "key": "that's purple grapes.",
-   "text": "That's purple grapes."
-  },
-  {
    "key": "that's rain.",
    "text": "That's rain."
   },
   {
-   "key": "that's red cherries.",
-   "text": "That's red cherries."
+   "key": "that's seven.",
+   "text": "That's seven."
   },
   {
-   "key": "that's socks.",
-   "text": "That's socks."
+   "key": "that's six.",
+   "text": "That's six."
+  },
+  {
+   "key": "that's ten.",
+   "text": "That's ten."
   },
   {
    "key": "that's the airplane.",
@@ -9518,6 +10058,14 @@
   {
    "key": "that's the zebra.",
    "text": "That's the zebra."
+  },
+  {
+   "key": "that's three.",
+   "text": "That's three."
+  },
+  {
+   "key": "that's two.",
+   "text": "That's two."
   },
   {
    "key": "that's water.",
@@ -10368,6 +10916,10 @@
    "text": "The taxi!"
   },
   {
+   "key": "the teal one!",
+   "text": "The teal one!"
+  },
+  {
    "key": "the teddy bear!",
    "text": "The teddy bear!"
   },
@@ -10492,6 +11044,46 @@
    "text": "The zebra!"
   },
   {
+   "key": "there are the blocks!",
+   "text": "There are the blocks!"
+  },
+  {
+   "key": "there are the blueberries!",
+   "text": "There are the blueberries!"
+  },
+  {
+   "key": "there are the boots!",
+   "text": "There are the boots!"
+  },
+  {
+   "key": "there are the cherries!",
+   "text": "There are the cherries!"
+  },
+  {
+   "key": "there are the glasses!",
+   "text": "There are the glasses!"
+  },
+  {
+   "key": "there are the grapes!",
+   "text": "There are the grapes!"
+  },
+  {
+   "key": "there are the mittens!",
+   "text": "There are the mittens!"
+  },
+  {
+   "key": "there are the pancakes!",
+   "text": "There are the pancakes!"
+  },
+  {
+   "key": "there are the pants!",
+   "text": "There are the pants!"
+  },
+  {
+   "key": "there are the socks!",
+   "text": "There are the socks!"
+  },
+  {
    "key": "there's the airplane!",
    "text": "There's the airplane!"
   },
@@ -10552,24 +11144,12 @@
    "text": "There's the bird!"
   },
   {
-   "key": "there's the blocks!",
-   "text": "There's the blocks!"
-  },
-  {
-   "key": "there's the blueberries!",
-   "text": "There's the blueberries!"
-  },
-  {
    "key": "there's the boat!",
    "text": "There's the boat!"
   },
   {
    "key": "there's the book!",
    "text": "There's the book!"
-  },
-  {
-   "key": "there's the boots!",
-   "text": "There's the boots!"
   },
   {
    "key": "there's the bread!",
@@ -10622,10 +11202,6 @@
   {
    "key": "there's the cheese!",
    "text": "There's the cheese!"
-  },
-  {
-   "key": "there's the cherries!",
-   "text": "There's the cherries!"
   },
   {
    "key": "there's the chicken!",
@@ -10752,16 +11328,8 @@
    "text": "There's the giraffe!"
   },
   {
-   "key": "there's the glasses!",
-   "text": "There's the glasses!"
-  },
-  {
    "key": "there's the goat!",
    "text": "There's the goat!"
-  },
-  {
-   "key": "there's the grapes!",
-   "text": "There's the grapes!"
   },
   {
    "key": "there's the guitar!",
@@ -10844,10 +11412,6 @@
    "text": "There's the milk!"
   },
   {
-   "key": "there's the mittens!",
-   "text": "There's the mittens!"
-  },
-  {
    "key": "there's the monkey!",
    "text": "There's the monkey!"
   },
@@ -10892,16 +11456,8 @@
    "text": "There's the owl!"
   },
   {
-   "key": "there's the pancakes!",
-   "text": "There's the pancakes!"
-  },
-  {
    "key": "there's the panda!",
    "text": "There's the panda!"
-  },
-  {
-   "key": "there's the pants!",
-   "text": "There's the pants!"
   },
   {
    "key": "there's the parrot!",
@@ -11028,10 +11584,6 @@
    "text": "There's the soap!"
   },
   {
-   "key": "there's the socks!",
-   "text": "There's the socks!"
-  },
-  {
    "key": "there's the spoon!",
    "text": "There's the spoon!"
   },
@@ -11132,6 +11684,26 @@
    "text": "There's the zebra!"
   },
   {
+   "key": "those are black sunglasses.",
+   "text": "Those are black sunglasses."
+  },
+  {
+   "key": "those are blocks.",
+   "text": "Those are blocks."
+  },
+  {
+   "key": "those are blue blueberries.",
+   "text": "Those are blue blueberries."
+  },
+  {
+   "key": "those are blue jeans.",
+   "text": "Those are blue jeans."
+  },
+  {
+   "key": "those are blueberries.",
+   "text": "Those are blueberries."
+  },
+  {
    "key": "those are bo's arms!",
    "text": "Those are Bo's arms!"
   },
@@ -11170,6 +11742,46 @@
   {
    "key": "those are bo's toes!",
    "text": "Those are Bo's toes!"
+  },
+  {
+   "key": "those are boots.",
+   "text": "Those are boots."
+  },
+  {
+   "key": "those are cherries.",
+   "text": "Those are cherries."
+  },
+  {
+   "key": "those are glasses.",
+   "text": "Those are glasses."
+  },
+  {
+   "key": "those are grapes.",
+   "text": "Those are grapes."
+  },
+  {
+   "key": "those are mittens.",
+   "text": "Those are mittens."
+  },
+  {
+   "key": "those are pancakes.",
+   "text": "Those are pancakes."
+  },
+  {
+   "key": "those are pants.",
+   "text": "Those are pants."
+  },
+  {
+   "key": "those are purple grapes.",
+   "text": "Those are purple grapes."
+  },
+  {
+   "key": "those are red cherries.",
+   "text": "Those are red cherries."
+  },
+  {
+   "key": "those are socks.",
+   "text": "Those are socks."
   },
   {
    "key": "three",
@@ -11220,20 +11832,72 @@
    "text": "Tickle tickle!"
   },
   {
+   "key": "tiger!",
+   "text": "Tiger!"
+  },
+  {
    "key": "time for a break!",
    "text": "Time for a break!"
+  },
+  {
+   "key": "tok, tok, tok!",
+   "text": "Tok, tok, tok!"
+  },
+  {
+   "key": "tomato!",
+   "text": "Tomato!"
+  },
+  {
+   "key": "tongue!",
+   "text": "Tongue!"
+  },
+  {
+   "key": "tooth!",
+   "text": "Tooth!"
+  },
+  {
+   "key": "toothbrush!",
+   "text": "Toothbrush!"
   },
   {
    "key": "touch bo!",
    "text": "Touch Bo!"
   },
   {
+   "key": "tractor!",
+   "text": "Tractor!"
+  },
+  {
+   "key": "train!",
+   "text": "Train!"
+  },
+  {
+   "key": "tree!",
+   "text": "Tree!"
+  },
+  {
    "key": "triangle!",
    "text": "Triangle!"
   },
   {
+   "key": "truck!",
+   "text": "Truck!"
+  },
+  {
+   "key": "trumpet!",
+   "text": "Trumpet!"
+  },
+  {
    "key": "tummy!",
    "text": "Tummy!"
+  },
+  {
+   "key": "turtle!",
+   "text": "Turtle!"
+  },
+  {
+   "key": "tweet tweet!",
+   "text": "Tweet tweet!"
   },
   {
    "key": "twinkle, twinkle, little star!",
@@ -11276,6 +11940,14 @@
    "text": "Two!"
   },
   {
+   "key": "umbrella!",
+   "text": "Umbrella!"
+  },
+  {
+   "key": "unicorn!",
+   "text": "Unicorn!"
+  },
+  {
    "key": "up and down!",
    "text": "Up and down!"
   },
@@ -11288,8 +11960,16 @@
    "text": "Water!"
   },
   {
+   "key": "watermelon!",
+   "text": "Watermelon!"
+  },
+  {
    "key": "way to go!",
    "text": "Way to go!"
+  },
+  {
+   "key": "whale!",
+   "text": "Whale!"
   },
   {
    "key": "what a happy house!",
@@ -11350,6 +12030,46 @@
   {
    "key": "where are bo's toes?",
    "text": "Where are Bo's toes?"
+  },
+  {
+   "key": "where are the blocks?",
+   "text": "Where are the blocks?"
+  },
+  {
+   "key": "where are the blueberries?",
+   "text": "Where are the blueberries?"
+  },
+  {
+   "key": "where are the boots?",
+   "text": "Where are the boots?"
+  },
+  {
+   "key": "where are the cherries?",
+   "text": "Where are the cherries?"
+  },
+  {
+   "key": "where are the glasses?",
+   "text": "Where are the glasses?"
+  },
+  {
+   "key": "where are the grapes?",
+   "text": "Where are the grapes?"
+  },
+  {
+   "key": "where are the mittens?",
+   "text": "Where are the mittens?"
+  },
+  {
+   "key": "where are the pancakes?",
+   "text": "Where are the pancakes?"
+  },
+  {
+   "key": "where are the pants?",
+   "text": "Where are the pants?"
+  },
+  {
+   "key": "where are the socks?",
+   "text": "Where are the socks?"
   },
   {
    "key": "where does black go?",
@@ -11908,24 +12628,12 @@
    "text": "Where's the bird?"
   },
   {
-   "key": "where's the blocks?",
-   "text": "Where's the blocks?"
-  },
-  {
-   "key": "where's the blueberries?",
-   "text": "Where's the blueberries?"
-  },
-  {
    "key": "where's the boat?",
    "text": "Where's the boat?"
   },
   {
    "key": "where's the book?",
    "text": "Where's the book?"
-  },
-  {
-   "key": "where's the boots?",
-   "text": "Where's the boots?"
   },
   {
    "key": "where's the bread?",
@@ -11978,10 +12686,6 @@
   {
    "key": "where's the cheese?",
    "text": "Where's the cheese?"
-  },
-  {
-   "key": "where's the cherries?",
-   "text": "Where's the cherries?"
   },
   {
    "key": "where's the chicken?",
@@ -12108,16 +12812,8 @@
    "text": "Where's the giraffe?"
   },
   {
-   "key": "where's the glasses?",
-   "text": "Where's the glasses?"
-  },
-  {
    "key": "where's the goat?",
    "text": "Where's the goat?"
-  },
-  {
-   "key": "where's the grapes?",
-   "text": "Where's the grapes?"
   },
   {
    "key": "where's the guitar?",
@@ -12200,10 +12896,6 @@
    "text": "Where's the milk?"
   },
   {
-   "key": "where's the mittens?",
-   "text": "Where's the mittens?"
-  },
-  {
    "key": "where's the monkey?",
    "text": "Where's the monkey?"
   },
@@ -12248,16 +12940,8 @@
    "text": "Where's the owl?"
   },
   {
-   "key": "where's the pancakes?",
-   "text": "Where's the pancakes?"
-  },
-  {
    "key": "where's the panda?",
    "text": "Where's the panda?"
-  },
-  {
-   "key": "where's the pants?",
-   "text": "Where's the pants?"
   },
   {
    "key": "where's the parrot?",
@@ -12382,10 +13066,6 @@
   {
    "key": "where's the soap?",
    "text": "Where's the soap?"
-  },
-  {
-   "key": "where's the socks?",
-   "text": "Where's the socks?"
   },
   {
    "key": "where's the spoon?",
@@ -12610,6 +13290,10 @@
   {
    "key": "wobble wobble!",
    "text": "Wobble wobble!"
+  },
+  {
+   "key": "wolf!",
+   "text": "Wolf!"
   },
   {
    "key": "woo woo!",
@@ -13104,6 +13788,10 @@
    "text": "You know your body parts!"
   },
   {
+   "key": "you played happy birthday!",
+   "text": "You played Happy Birthday!"
+  },
+  {
    "key": "you played jingle bells!",
    "text": "You played Jingle Bells!"
   },
@@ -13156,6 +13844,10 @@
    "text": "You sorted them all!"
   },
   {
+   "key": "you're keeping the beat!",
+   "text": "You're keeping the beat!"
+  },
+  {
    "key": "your turn!",
    "text": "Your turn!"
   },
@@ -13170,6 +13862,10 @@
   {
    "key": "yummy yummy!",
    "text": "Yummy yummy!"
+  },
+  {
+   "key": "zebra!",
+   "text": "Zebra!"
   }
  ]
 }

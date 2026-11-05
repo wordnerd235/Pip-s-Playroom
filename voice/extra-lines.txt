@@ -1,2 +1,33 @@
 # Hand-added lines for the voice pack (one per row). Paste the list from Pip settings → "Copy missing lines" here,
 # then run: python3 tools/make_clips.py
+# plural words (PP.data.whereIs / thatIs): "Where are the socks?", "Those are grapes.", Peekaboo "There are the socks!"
+Where are the grapes?
+Those are grapes.
+There are the grapes!
+Where are the cherries?
+Those are cherries.
+There are the cherries!
+Where are the blueberries?
+Those are blueberries.
+There are the blueberries!
+Where are the pancakes?
+Those are pancakes.
+There are the pancakes!
+Where are the pants?
+Those are pants.
+There are the pants!
+Where are the socks?
+Those are socks.
+There are the socks!
+Where are the mittens?
+Those are mittens.
+There are the mittens!
+Where are the boots?
+Those are boots.
+There are the boots!
+Where are the glasses?
+Those are glasses.
+There are the glasses!
+Where are the blocks?
+Those are blocks.
+There are the blocks!
