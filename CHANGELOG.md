@@ -1,11 +1,12 @@
 # Changelog
 
-Every release is a git tag, so any earlier version can be restored or compared:
+Every release is kept as a `release/vX.Y` branch on GitHub, so any earlier version can be compared or restored:
 
 ```bash
-git tag -n                          # list releases
-git diff v1.0 v1.1 -- src/          # what changed in the code
-git checkout v1.0 -- docs/          # put an older build back on GitHub Pages (then commit + push)
+git fetch origin
+git branch -r | grep release/                              # list releases
+git diff origin/release/v1.0 origin/release/v1.1 -- src/   # what changed in the code
+git checkout origin/release/v1.0 -- docs/                  # put an older build back on GitHub Pages (then commit + push)
 ```
 
 ## v1.1 — bug-fix pass (2026-11-05)

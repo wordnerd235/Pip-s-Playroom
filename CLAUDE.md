@@ -25,7 +25,7 @@
   - two QA passes, fixed
   - Kokoro voice pack (`af_heart`, speed 0.92, name lines for "friend") rendered and shipped in `docs/voice/`
   - v1.1 bug-fix pass (see `CHANGELOG.md`)
-- **Releases:** each release is a git tag (`v1.0`, `v1.1`, …) and `CHANGELOG.md` lists what changed. Tag a new version and add a changelog entry whenever you push a batch of changes, so older revisions stay easy to find and restore.
+- **Releases:** each release is a `release/vX.Y` branch on GitHub (`release/v1.0`, `release/v1.1`, …) and `CHANGELOG.md` lists what changed. Cloud sessions can push branches but not tags (tag pushes get HTTP 403), so releases are branches. Add one, plus a changelog entry, whenever you push a batch of changes, so older revisions stay easy to find and restore.
 - **Tested:** only in headless Chromium at iPad and iPhone sizes, with no console errors and flat memory in soak runs. **Not yet verified on a real iPhone or iPad.**
 
 ## Layout
@@ -142,4 +142,4 @@ python3 tools/make_clips.py --engine fake     # pipeline test without Kokoro (be
 2. Use `ctx` helpers for all timers and listeners. Namespace CSS as `.g-<id>` with a short prefix. Don't edit core to suit one game without checking the others.
 3. Keep spoken lines short (2–6 words). Wrong answers name what was tapped and re-prompt. After 2 misses, glow the right answer. An answer given after a glow hint isn't a first-try success. Use `PP.data.whereIs()` / `thatIs()` for word prompts so plurals read right ("Where are the socks?").
 4. When changing what Pip says, update `voiceLines()` or re-harvest, then re-render the pack (only new lines get rendered).
-5. Releases: bump `PP.version` in `src/core/00-util.js`, add a `CHANGELOG.md` entry, and push an annotated tag (`git tag -a v1.2 -m …`).
+5. Releases: bump `PP.version` in `src/core/00-util.js`, add a `CHANGELOG.md` entry, push `main`, then push the same commit as a release branch (`git push origin HEAD:refs/heads/release/v1.2`).
