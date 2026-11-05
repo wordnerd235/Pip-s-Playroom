@@ -11,7 +11,9 @@ Use:
 
 Inputs:  voice/lines.json (from tools/harvest.js) + voice/extra-lines.txt (one line per row, optional)
 Outputs: docs/voice/manifest.json + docs/voice/pack-<hash>.mp3pack (all clips concatenated; the app slices it)
-Cache:   .voice-cache/ — re-runs only render new or changed lines.
+Cache:   .voice-cache/ — re-runs only render new or changed lines. Lines already in the shipped pack
+         (docs/voice/, same engine/voice/speed/bitrate) are reused from it, so a fresh checkout without
+         .voice-cache/ only renders what's new (use --no-reuse to re-render everything).
 
 The Kokoro model files (~330 MB) download from the kokoro-onnx GitHub releases into .kokoro/ on first run.
 """
@@ -152,6 +154,33 @@ def key_of(text):
     return t.lower()
 
 
+class PackReuse:
+    """Clips from the existing pack in --out, when it was made with the same settings."""
+    def __init__(self, out_dir, settings):
+        self.clips, self.path = {}, None
+        try:
+            m = json.load(open(os.path.join(out_dir, 'manifest.json'), encoding='utf-8'))
+        except Exception:
+            return
+        mine = {'engine': m.get('engine'), 'voice': m.get('voice'), 'speed': m.get('speed'),
+                'lang': m.get('lang', 'en-us'), 'bitrate': m.get('bitrate', '32k')}
+        if mine != settings:
+            log(f'existing pack was made with {mine}; not reusing it for {settings}')
+            return
+        path = os.path.join(out_dir, m.get('pack', ''))
+        if os.path.isfile(path):
+            self.clips, self.path = m.get('clips', {}), path
+
+    def get(self, key):
+        c = self.clips.get(key)
+        if not c:
+            return None
+        with open(self.path, 'rb') as f:
+            f.seek(c[0])
+            data = f.read(c[1])
+        return (data, c[2]) if len(data) == c[1] else None
+
+
 def load_lines(lines_path, extra_path, name=''):
     lines = []
     seen = set()
@@ -200,6 +229,7 @@ def main():
     ap.add_argument('--preview-voices', default='af_heart,af_bella,af_nicole,af_sarah,am_michael,bf_emma')
     ap.add_argument('--list-voices', action='store_true')
     ap.add_argument('--name', default='', help="child's name, so Pip can cheer 'Great job, NAME!' (must match the name typed in Pip's settings)")
+    ap.add_argument('--no-reuse', action='store_true', help="don't reuse clips from the pack already in --out")
     a = ap.parse_args()
 
     import numpy as np
@@ -207,9 +237,15 @@ def main():
     FFMPEG = find_ffmpeg()
     if not FFMPEG and not a.list_voices:
         sys.exit('ffmpeg is required: apt-get install -y ffmpeg  (or: pip install imageio-ffmpeg)')
-    eng = (KokoroEngine if a.engine == 'kokoro' else FakeEngine)(a.model_dir, a.voice, a.speed, a.lang)
+    _eng = []
+
+    def engine():
+        if not _eng:
+            _eng.append((KokoroEngine if a.engine == 'kokoro' else FakeEngine)(a.model_dir, a.voice, a.speed, a.lang))
+        return _eng[0]
+
     if a.list_voices:
-        log('\n'.join(eng.voices()))
+        log('\n'.join(engine().voices()))
         return
 
     lines = load_lines(a.lines, a.extra, a.name.strip())
@@ -226,7 +262,7 @@ def main():
         sample = ["Hi! I'm Pip! Let's play!", 'Can you pop a red balloon?', 'Peekaboo! A cow! The cow says moo!'] + sample
         for v in a.preview_voices.split(','):
             text = ' '.join(sample[:6])
-            y, sr = eng.render(text, voice=v)
+            y, sr = engine().render(text, voice=v)
             sf.write(os.path.join(pdir, f'{v}.wav'), y, sr)
             log(f'  voice/preview/{v}.wav')
         log('Listen to these, pick a voice, then run without --preview.')
@@ -235,23 +271,31 @@ def main():
     os.makedirs(a.cache, exist_ok=True)
     os.makedirs(a.out, exist_ok=True)
     tag = f'{a.engine}|{a.voice}|{a.speed}|{a.lang}|{a.bitrate}|v2'
+    voice_name = a.voice if a.engine == 'kokoro' else 'test tones'
+    reuse = None if a.no_reuse else PackReuse(a.out, {'engine': a.engine, 'voice': voice_name, 'speed': a.speed, 'lang': a.lang, 'bitrate': a.bitrate})
     clips = {}
     blobs = []
     offset = 0
     t0 = time.time()
-    rendered = 0
+    rendered = reused = 0
     for i, text in enumerate(lines):
         h = hashlib.sha1((tag + '|' + text).encode()).hexdigest()
         mp3_path = os.path.join(a.cache, h + '.mp3')
         meta_path = os.path.join(a.cache, h + '.json')
         if not (os.path.exists(mp3_path) and os.path.exists(meta_path)):
-            y, sr = eng.render(text)
-            y = process(y, sr, np)
-            data = encode_mp3(y, sr, a.bitrate)
+            old = reuse.get(key_of(text)) if reuse else None
+            if old:
+                data, ms = old
+                reused += 1
+            else:
+                y, sr = engine().render(text)
+                y = process(y, sr, np)
+                data = encode_mp3(y, sr, a.bitrate)
+                ms = round(len(y) / sr * 1000)
+                rendered += 1
             with open(mp3_path, 'wb') as f:
                 f.write(data)
-            json.dump({'ms': round(len(y) / sr * 1000), 'text': text}, open(meta_path, 'w'))
-            rendered += 1
+            json.dump({'ms': ms, 'text': text}, open(meta_path, 'w'))
         data = open(mp3_path, 'rb').read()
         ms = json.load(open(meta_path))['ms']
         clips[key_of(text)] = [offset, len(data), ms]
@@ -261,7 +305,7 @@ def main():
         if (tty and (i + 1) % 25 == 0) or (not tty and (i + 1) % 250 == 0) or i + 1 == len(lines):
             el = time.time() - t0
             eta = (el / max(1, rendered)) * (len(lines) - i - 1) if rendered else 0
-            sys.stdout.write(('\r' if tty else '') + f'  {i + 1}/{len(lines)} lines  ({rendered} rendered, {el:.0f}s, ~{eta:.0f}s left)   ' + ('' if tty else '\n'))
+            sys.stdout.write(('\r' if tty else '') + f'  {i + 1}/{len(lines)} lines  ({rendered} rendered, {reused} reused from the pack, {el:.0f}s, ~{eta:.0f}s left)   ' + ('' if tty else '\n'))
             sys.stdout.flush()
     log('')
 
@@ -273,8 +317,8 @@ def main():
             os.remove(os.path.join(a.out, f))
     with open(os.path.join(a.out, pack_name), 'wb') as f:
         f.write(pack)
-    manifest = {'version': 1, 'voice': a.voice if a.engine == 'kokoro' else 'test tones', 'engine': a.engine,
-                'speed': a.speed, 'gapMs': a.gap_ms, 'pack': pack_name, 'count': len(clips), 'clips': clips}
+    manifest = {'version': 1, 'voice': voice_name, 'engine': a.engine, 'speed': a.speed, 'lang': a.lang, 'bitrate': a.bitrate,
+                'gapMs': a.gap_ms, 'pack': pack_name, 'count': len(clips), 'clips': clips}
     with open(os.path.join(a.out, 'manifest.json'), 'w') as f:
         json.dump(manifest, f, separators=(',', ':'))
     total_ms = sum(c[2] for c in clips.values())

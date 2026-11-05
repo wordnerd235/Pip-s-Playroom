@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /* Harvest every sentence Pip can say → voice/lines.json (the script for the voice actor, i.e. Kokoro).
  *
- *   node tools/harvest.js [--seconds 50] [--parallel 8] [--games a,b] [--levels 1,2,3,4,5] [--merge]
+ *   node tools/harvest.js [--seconds 50] [--parallel 8] [--games a,b] [--levels 1,2,3,4,5] [--merge] [--no-play]
  *     --merge keeps the sentences already in voice/lines.json and adds the new ones
+ *     --no-play skips auto-play and rebuilds voice/lines.json from voice/played.json + the fixed lines
  *
  * How it works
  *  1. Auto-plays every game at every level in headless Chromium with toddler-style random tapping,
@@ -142,10 +143,11 @@ function nameLines(name) {
       if (done % 5 === 0 || done === games.length * LEVELS.length) console.log(`  played ${done}/${games.length * LEVELS.length} (${Math.round((Date.now() - t0) / 1000)}s) — ${utterances.length} utterances`);
     }
   }
-  await Promise.all(Array.from({ length: PAR }, worker));
+  const NOPLAY = args.includes('--no-play');
+  if (!NOPLAY) await Promise.all(Array.from({ length: PAR }, worker));
   console.log('');
   // what games actually said is the evidence for generalizing; fixed lines are added as-is
-  if (args.includes('--merge') && fs.existsSync(path.join(OUT, 'played.json'))) {
+  if ((args.includes('--merge') || NOPLAY) && fs.existsSync(path.join(OUT, 'played.json'))) {
     JSON.parse(fs.readFileSync(path.join(OUT, 'played.json'), 'utf8')).forEach((s) => utterances.push(s));
   }
   const played = [...new Set(utterances)].sort();
@@ -160,10 +162,21 @@ function nameLines(name) {
   const result = await bp.evaluate(({ played, fixed, name }) => {
     const V = PP.voice, D = PP.data, U = PP.util;
     const sentences = new Map(); // key -> text
-    const add = (s) => { const k = V.key(s); if (k && !sentences.has(k)) sentences.set(k, V.clean(s)); };
+    // phrasing the games no longer use (old played.json entries) or that doesn't fit the word:
+    // "Where's the socks?" / "That's grapes." / "Where are the dog?" / "Those are cat."
+    const known = new Set(D.WORDS.map((w) => w.word));
+    const isPl = (w) => (D.isPlural ? D.isPlural(w) : false);
+    const badGrammar = (t) => {
+      let m = /^(where's the|there's the|that's) ([a-z ]+)[.!?]$/i.exec(t);
+      if (m && known.has(m[2].toLowerCase()) && isPl(m[2].toLowerCase())) return true;
+      m = /^(where are the|there are the|those are) ([a-z ]+)[.!?]$/i.exec(t);
+      return !!(m && known.has(m[2].toLowerCase()) && !isPl(m[2].toLowerCase()));
+    };
+    const add = (s) => { const k = V.key(s); if (k && !sentences.has(k) && !badGrammar(V.clean(s))) sentences.set(k, V.clean(s)); };
     const playedKeys = new Set();
     played.forEach((u) => V.split(u).forEach((s) => { add(s); playedKeys.add(V.key(s)); }));
-    fixed.forEach((u) => V.split(u).forEach(add));
+    const fixedKeys = new Set();
+    fixed.forEach((u) => V.split(u).forEach((s) => { add(s); fixedKeys.add(V.key(s)); }));
     if (name) D.PRAISE.forEach((p) => add(p.replace(/[!.]$/, '') + ', ' + name + '!'));
 
     // vocabulary classes
@@ -211,6 +224,9 @@ function nameLines(name) {
     const templates = new Map(); // `${c}|${t}` -> {c, t, seen:Set}
     sentences.forEach((text, key) => {
       if (!playedKeys.has(key)) return; // generalize only from what games really said
+      // …and not from lines a game already lists in full via voiceLines() (e.g. Paint's picture parts:
+      // "Let's paint the cupcake!" must not turn into "Let's paint the airplane!")
+      if (fixedKeys.has(key)) return;
       const toks = findTokens(text);
       if (!toks.length) return;
       const classes = new Set();
@@ -244,7 +260,14 @@ function nameLines(name) {
         domain = CLASSES.number.slice(maxSeen > 10 ? 0 : 1, 11);
       }
       let n = 0;
-      domain.forEach((v) => { const s = fill(T.t, T.c, v); if (s) { const before = sentences.size; add(s); if (sentences.size > before) { n++; generated++; } } });
+      // singular phrasing ("Where's the {v}?", "That's {a}.") doesn't fit plural words: the games say
+      // "Where are the socks?" / "Those are grapes." for those (PP.data.whereIs / thatIs)
+      const singularOnly = T.c === 'noun' && /(^|[^a-z])(where's|there's|that's|it's|is)\s+(the\s+)?\{[aAvV]\}/i.test(T.t);
+      domain.forEach((v) => {
+        if (singularOnly && D.isPlural && D.isPlural(v)) return;
+        const s = fill(T.t, T.c, v);
+        if (s) { const before = sentences.size; add(s); if (sentences.size > before) { n++; generated++; } }
+      });
       report.push({ class: T.c, template: T.t, seen: T.seen.size, added: n });
     });
     report.sort((a, b) => b.added - a.added);

@@ -1,5 +1,5 @@
 /* Pip's Playroom — offline support. Network-first for the page (so updates arrive), cache fallback when offline. */
-const CACHE = 'pips-playroom-bd6bc840ee';
+const CACHE = 'pips-playroom-3929383428';
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', './index.html'])).catch(() => {}).then(() => self.skipWaiting()));
 });

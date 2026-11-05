@@ -32,7 +32,7 @@
    *    targetId    id of the correct choice
    *    prompt      'Find the dog!'   (also set as ctx prompt; Pip/idle repeats it)
    *    intro       optional text said before the prompt (e.g., 'Let's find animals!')
-   *    sayWrong    (choice) => text   default: `That's ${a(name)}.`
+   *    sayWrong    (choice) => text   default: PP.data.thatIs(name) ("That's a cat." / "Those are socks.")
    *    sayRight    (choice) => text   default: `${praise} ${Cap(name)}!`   (set false for none)
    *    cardColor   background css color of cards (default white)
    *    maxCard     max card px (default 260)
@@ -102,7 +102,8 @@
             cards.forEach((c) => { if (c !== card) c.classList.add('pp-dim'); });
             const p = U.center(card);
             PP.fx.burst(p.x, p.y, { emoji: ['⭐', '✨', '🌟'], count: 7, distance: 110 });
-            ctx.success(misses === 0);
+            // an answer Pip had to light up (idle hint) isn't a first-try success: no level-up from glow-following
+            ctx.success(misses === 0 && !hinted);
             const right = o.sayRight === false ? false
               : o.sayRight ? o.sayRight(ch)
               : `${PP.data.praise()} ${U.cap(target.name)}!`;
@@ -115,7 +116,7 @@
             }
             offs.forEach((f) => f());
             ctx.offResize(layout);
-            resolve({ firstTry: misses === 0, misses });
+            resolve({ firstTry: misses === 0 && !hinted, misses });
           } else {
             misses++;
             ctx.sfx('oops', { vel: 0.6 });
@@ -123,7 +124,7 @@
             void card.offsetWidth;
             card.classList.add('pp-wiggle');
             if (ctx.mascot.el) ctx.mascot.mood('think');
-            const wrong = o.sayWrong ? o.sayWrong(ch) : `That's ${PP.data.a(ch.name)}.`;
+            const wrong = o.sayWrong ? o.sayWrong(ch) : PP.data.thatIs(ch.name);
             if (misses >= (o.hintAfter || 2)) {
               if (!missReported) { missReported = true; ctx.miss(); }
               hinted = true;

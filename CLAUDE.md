@@ -23,14 +23,10 @@
   - play timer
   - offline service worker
   - two QA passes, fixed
+  - Kokoro voice pack (`af_heart`, speed 0.92, name lines for "friend") rendered and shipped in `docs/voice/`
+  - v1.1 bug-fix pass (see `CHANGELOG.md`)
+- **Releases:** each release is a git tag (`v1.0`, `v1.1`, …) and `CHANGELOG.md` lists what changed. Tag a new version and add a changelog entry whenever you push a batch of changes, so older revisions stay easy to find and restore.
 - **Tested:** only in headless Chromium at iPad and iPhone sizes, with no console errors and flat memory in soak runs. **Not yet verified on a real iPhone or iPad.**
-- **Voice pack plumbing is finished and tested end-to-end with the test engine (beeps):**
-  - the app player
-  - the harvest
-  - `make_clips.py`
-  - service-worker caching
-- **Kokoro itself has never been run.** The model couldn't be downloaded in the original sandbox.
-- **Next task:** render the Kokoro voice pack into `docs/voice/` and ship it. See "Voice pack" below and `VOICE.md`.
 
 ## Layout
 - **`src/core/*.js`** is the engine. Files load in file-name order, all on `window.PP`.
@@ -102,7 +98,7 @@ python3 tools/make_clips.py --engine fake     # pipeline test without Kokoro (be
 
 ## Voice pack (Kokoro)
 - **Rendering:** `make_clips.py` uses `kokoro-onnx` (pip). On first run it downloads `kokoro-v1.0.onnx` and `voices-v1.0.bin` from the GitHub releases of `thewh1teagle/kokoro-onnx` (tag `model-files-v1.0`, falling back to `-v1.1`) into `.kokoro/`. Default "Trusted" cloud network access is enough because PyPI and GitHub are on its allowlist. Encoding needs ffmpeg; `pip install imageio-ffmpeg` is the fallback.
-- **Output:** `docs/voice/manifest.json` (`{voice, pack, gapMs, clips: {key: [byteOffset, byteLength, ms]}}`) plus `docs/voice/pack-<hash>.mp3pack`, which is every clip's MP3 concatenated. Expect roughly 12–18 MB for about 3.3k lines at 32 kbps mono. Rendered clips are cached in `.voice-cache/`, so re-runs only render what's new.
+- **Output:** `docs/voice/manifest.json` (`{voice, pack, gapMs, clips: {key: [byteOffset, byteLength, ms]}}`) plus `docs/voice/pack-<hash>.mp3pack`, which is every clip's MP3 concatenated. Expect roughly 12–18 MB for about 3.3k lines at 32 kbps mono. Rendered clips are cached in `.voice-cache/`, and clips already in the shipped pack are reused when the voice, speed and bitrate match, so re-runs (even in a fresh checkout) only render what's new and only then download the model. `--no-reuse` forces a full re-render.
 - **Runtime:** `PP.voice.split()` and `PP.voice.key()` must stay identical to `key_of()` in `make_clips.py`. Utterances are matched sentence by sentence. If any sentence is missing, the whole utterance falls back to device TTS, and the missing keys are logged for settings.
 - **Coverage:** in random play with the beep pack, about 99% of distinct sentences had clips. Data-driven lines come from each game's `voiceLines()` (Count, Color Sort, Paint and Shapes have one); the rest come from auto-play harvesting plus vocabulary expansion. When you add speech to a game, add `voiceLines()` or re-run `harvest.js --merge`.
 - **Voice choice:** default `af_heart` at speed 0.92. Alternatives are `af_bella`, `af_nicole`, `af_sarah`, `am_michael`, `bf_emma`; `--list-voices` shows all, and `--preview N` writes WAV samples to `voice/preview/`. **Commit:** `docs/voice/`, `voice/`. **Never commit:** `.kokoro/`, `.voice-cache/`, `voice/preview/` (all gitignored).
@@ -136,7 +132,7 @@ python3 tools/make_clips.py --engine fake     # pipeline test without Kokoro (be
   - Samantha fallback
   - voice pack loading and playback
   - Add to Home Screen icon (a data-URI `apple-touch-icon`, also shipped as `docs/apple-touch-icon.png`)
-- **Xylophone:** at levels 1–2 any tap plays the next note, so every song counts as a first-try success and it climbs to level 3 ("tap the glowing bar") after 6 songs.
+- **Xylophone:** at levels 1–2 any tap plays the next note. A song only counts as a first-try success (toward level 3, "tap the glowing bar") when at least 60% of its notes were played on the glowing bar; otherwise it's neutral.
 - **Peekaboo:** door rounds can't be failed, so they only raise the level up to 3. From level 3 on, only the memory question moves the level, so it can also come back down.
 - **Older Safari:** Color Sort's hint arrow uses `aspect-ratio` (Safari 15+); Bubbles animates the `translate` property (Safari 14.1+). Fine on current iPadOS.
 - **Device-voice timing:** Count's recap waits for each spoken number, so recaps with the device voice may feel slower on iOS.
@@ -144,5 +140,6 @@ python3 tools/make_clips.py --engine fake     # pipeline test without Kokoro (be
 ## Rules of the road
 1. After any change, run `python3 tools/build.py`, then `node tools/smoke.js --game <id>` for each game touched (all 4 viewports for layout work). **Look at the screenshots**, then commit `docs/` along with `src/`.
 2. Use `ctx` helpers for all timers and listeners. Namespace CSS as `.g-<id>` with a short prefix. Don't edit core to suit one game without checking the others.
-3. Keep spoken lines short (2–6 words). Wrong answers name what was tapped and re-prompt. After 2 misses, glow the right answer.
+3. Keep spoken lines short (2–6 words). Wrong answers name what was tapped and re-prompt. After 2 misses, glow the right answer. An answer given after a glow hint isn't a first-try success. Use `PP.data.whereIs()` / `thatIs()` for word prompts so plurals read right ("Where are the socks?").
 4. When changing what Pip says, update `voiceLines()` or re-harvest, then re-render the pack (only new lines get rendered).
+5. Releases: bump `PP.version` in `src/core/00-util.js`, add a `CHANGELOG.md` entry, and push an annotated tag (`git tag -a v1.2 -m …`).

@@ -965,7 +965,7 @@
       function memoryTap(c) {
         const m = memory;
         if (!m || m.done) { ctx.sfx('tap', { vel: 0.4 }); return; }
-        if (c.state === 'open') { bounceItem(c); ctx.say(`${nameOf(c.word)}! Where's the ${m.target.word.word}?`); return; }
+        if (c.state === 'open') { bounceItem(c); ctx.say(`${nameOf(c.word)}! ${PP.data.whereIs(m.target.word)}`); return; }
         if (c.state !== 'closed') { rattle(c, false); return; }
         if (c === m.target) {
           m.done = true;
@@ -974,8 +974,8 @@
           (async () => {
             await openCell(c, { fast: true });
             const p = U.center(c.el);
-            ctx.success(m.misses === 0);
-            await ctx.celebrate({ x: p.x, y: p.y, say: `Peekaboo! There's the ${c.word.word}! ${ctx.praise()}` });
+            ctx.success(m.misses === 0 && !m.unglow);
+            await ctx.celebrate({ x: p.x, y: p.y, say: `Peekaboo! ${PP.data.isPlural(c.word) ? 'There are' : "There's"} the ${c.word.word}! ${ctx.praise()}` });
             m.resolve();
           })();
         } else {
@@ -984,7 +984,7 @@
           ctx.mascot.mood('think');
           (async () => {
             await openCell(c, { fast: true });
-            ctx.say(`${nameOf(c.word)}! Where's the ${m.target.word.word}?`);
+            ctx.say(`${nameOf(c.word)}! ${PP.data.whereIs(m.target.word)}`);
             if (m.misses >= 2) {
               if (!m.missReported) { m.missReported = true; ctx.miss(); }
               if (!m.unglow) m.unglow = PP.fx.glow(m.target.el);
@@ -1006,7 +1006,7 @@
         await settle();
         ctx.sfx('whoosh', { vel: 0.4 });
         await ctx.wait(300);
-        const prompt = `Where's the ${w.word}?`;
+        const prompt = PP.data.whereIs(w);
         ctx.setPrompt(prompt);
         await new Promise((resolve) => {
           memory = { target, misses: 0, done: false, resolve, missReported: false, unglow: null, stopIdle: () => {} };

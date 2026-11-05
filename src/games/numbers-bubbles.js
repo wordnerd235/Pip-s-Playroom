@@ -353,6 +353,7 @@
         removeBubble(b);
         const p = popFx(b, true);
         ctx.sfx('pop', { vel: 0.9 });
+        if (mode === 'howmany') return; // a straggler whooshing away: just pop it, Pip is counting fish
         ctx.play('marimba', SCALE[b.n - 1] || 'C6', { vel: 0.55, delay: 0.03 });
         PP.fx.floatText(p.x, p.y - b.D * 0.2, String(b.n), { color: '#fff', size: numSize() });
         if (mode === 'play' && target) {

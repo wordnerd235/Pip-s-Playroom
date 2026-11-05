@@ -134,7 +134,8 @@
     '🎩': 'hat', '🎱': 'ball', '🕶️': 'sunglasses',
     '☁️': 'cloud', '⛄': 'snowman', '🥚': 'egg', '🐑': 'sheep', '🥛': 'milk',
   };
-  const PLURAL = /^(cherries|blueberries|grapes|jeans|sunglasses|milk|corn|cheese|broccoli|water drop)$/;
+  const PLURAL = /^(cherries|blueberries|grapes|jeans|sunglasses|milk|corn|cheese|broccoli)$/; // no "a"
+  const THINGS_PL = /(cherries|blueberries|grapes|jeans|sunglasses)$/; // "Those are red cherries."
   function thingPhrase(color, emoji) {
     const n = THING_NAMES[emoji] || 'one';
     if (n === color.name) return `an ${n}`; // "an orange"
@@ -217,7 +218,7 @@
         const C = U.cap(c.name);
         L.push(`Find something ${c.name}!`, `${C}!`, `That's the ${c.name} box.`, `Where does ${c.name} go?`, `Find the ${c.name} box!`);
         TOY_IDS.forEach((k) => L.push(`${C} ${k}!`, `Where does the ${c.name} ${k} go?`, `${C} ${k}, ${c.name} box!`));
-        (PP.data.COLOR_THINGS[c.id] || []).forEach((e) => { const p = thingPhrase(c, e); L.push(`That's ${p}.`, `${U.cap(p)}!`); });
+        (PP.data.COLOR_THINGS[c.id] || []).forEach((e) => { const p = thingPhrase(c, e); L.push(`${THINGS_PL.test(p) ? 'Those are' : "That's"} ${p}.`, `${U.cap(p)}!`); });
       });
       return L;
     },
@@ -604,7 +605,7 @@
             prompt: `Find something ${target.name}!`,
             maxCard: 250,
             idleMs: 8000,
-            sayWrong: (ch) => `That's ${ch.name}.`,
+            sayWrong: (ch) => `${THINGS_PL.test(ch.name) ? 'Those are' : "That's"} ${ch.name}.`,
             sayRight: (ch) => `${ctx.praise()} ${U.cap(ch.name)}!`,
           });
           await ctx.wait(200);

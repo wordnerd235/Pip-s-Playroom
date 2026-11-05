@@ -175,7 +175,7 @@
       `<circle cx="12" cy="11" r="4" fill="#FFB627"/></svg>`;
   }
 
-  const PENTA = ['C6', 'D6', 'E6', 'G6', 'A6', 'C7', 'D6', 'E6'];
+  const PENTA = ['C6', 'D6', 'E6', 'G6', 'A6', 'C7', 'D7', 'E7', 'G7', 'A7'];
 
   PP.registerGame({
     id: 'balloons',
@@ -239,12 +239,15 @@
 
       /* ---------------- layout ---------------- */
       let w = 0, h = 0, BW = 100;
+      const probe = ctx.el('div', { style: { position: 'absolute', visibility: 'hidden', pointerEvents: 'none', paddingLeft: 'var(--safe-l)' } });
+      stage.appendChild(probe);
+      const leftEdge = (sw) => (sw >= 500 ? 92 : 64) + (parseFloat(getComputedStyle(probe).paddingLeft) || 0);
       function layout() {
         const s = ctx.size();
         // on rotation, carry balloons over proportionally so none are stranded off-screen
         if (w && s.w && s.w !== w && typeof balloons !== 'undefined') {
           const kx = s.w / w;
-          balloons.forEach((b) => { b.x0 = U.clamp(b.x0 * kx, s.w >= 500 ? 92 : 64, Math.max(0, s.w - b.W - 6)); });
+          balloons.forEach((b) => { b.x0 = U.clamp(b.x0 * kx, leftEdge(s.w), Math.max(0, s.w - b.W - 6)); });
         }
         w = s.w; h = s.h;
         const mn = Math.min(w, h);
@@ -286,7 +289,7 @@
       /* ---------------- balloons ---------------- */
       function chooseX(bw) {
         // keep clear of the home button's column (top-left) so reaching for a balloon never exits the game
-        const lo = w >= 500 ? 92 : 64, hi = Math.max(lo + 1, w - bw - 6);
+        const lo = leftEdge(w), hi = Math.max(lo + 1, w - bw - 6);
         let best = lo + Math.random() * (hi - lo), bestScore = -1;
         for (let k = 0; k < 8; k++) {
           const x = lo + Math.random() * (hi - lo);
@@ -498,7 +501,7 @@
         const order = ctx.shuffle(Array.from({ length: n }, (_, i) => i));
         order.forEach((slot, k) => {
           ctx.setTimeout(() => {
-            const lo = w >= 500 ? 92 : 64;
+            const lo = leftEdge(w);
             const x = lo + (slot + 0.5) * ((w - lo - BW * 0.9) / n) + U.rand(-10, 10);
             spawn({ party: true, x: U.clamp(x, lo, w - BW), color: pal[(slot + k) % pal.length], y0: U.rand(0, 60) });
           }, k * 85);
@@ -609,7 +612,7 @@
           ctx.play('kalimba', ctx.pick(['C5', 'E5', 'G5']), { vel: 0.35 });
           return;
         }
-        ctx.play('bell', ctx.pick(PENTA), { vel: 0.18 });
+        ctx.play('bell', ctx.pick(PENTA.slice(0, 8)), { vel: 0.18 });
         const tw = U.el('div', { class: 'bp-twinkle pp-emoji', text: ctx.pick(['✨', '⭐', '💫']), style: { left: pt.x + 'px', top: pt.y + 'px' } });
         fxl.appendChild(tw);
         tw.animate([

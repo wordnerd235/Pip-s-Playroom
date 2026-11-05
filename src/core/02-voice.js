@@ -151,9 +151,8 @@
     const gap = ((manifest.gapMs != null ? manifest.gapMs : 130) / 1000) / pr;
     let stopped = false;
     const sources = [];
-    Promise.all(keys.map(decode)).then((bufs) => {
-      if (stopped) return;
-      if (ctx.state !== 'running') ctx.resume().catch(() => {});
+    const fallback = () => { if (!stopped) { stopped = true; onEnd('fallback'); } };
+    const start = (bufs) => {
       let t = ctx.currentTime + 0.03;
       const out = PP.audio.voiceOut();
       bufs.forEach((b, i) => {
@@ -166,7 +165,20 @@
         if (i === bufs.length - 1) s.onended = () => { if (!stopped) { stopped = true; onEnd(true); } };
         t += b.duration / pr + gap;
       });
-    }).catch(() => { if (!stopped) { stopped = true; onEnd(false); } });
+    };
+    Promise.all(keys.map(decode)).then((bufs) => {
+      if (stopped) return;
+      if (ctx.state === 'running') { start(bufs); return; }
+      // iOS can leave the audio context suspended/"interrupted" (after a call, the lock screen, app switching)
+      // until the next touch. Clips scheduled now would sit silent until the safety timer, so give the
+      // context a moment to resume and otherwise let the device voice say this line.
+      ctx.resume().catch(() => {});
+      setTimeout(() => {
+        if (stopped) return;
+        if (ctx.state === 'running') start(bufs);
+        else fallback();
+      }, 300);
+    }).catch(fallback);
     return {
       stop() {
         if (stopped) return;

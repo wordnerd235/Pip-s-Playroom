@@ -195,7 +195,10 @@
         const sr = stage.getBoundingClientRect(), pr = probe.getBoundingClientRect();
         const safe = { l: Math.max(0, pr.left - sr.left), t: Math.max(0, pr.top - sr.top), r: Math.max(0, sr.right - pr.right), b: Math.max(0, sr.bottom - pr.bottom) };
         const s = Math.min(w, h), land = w > h * 1.15;
-        const RH = land ? U.clamp(h * 0.58, 150, 420) : U.clamp(h * 0.36, 170, 440);
+        let RH = land ? U.clamp(h * 0.58, 150, 420) : U.clamp(h * 0.36, 170, 440);
+        // narrow portrait (iPhone): keep the launch tower on screen — it stands left of the rocket at
+        // padX - RW/2 - 0.3 * tower height, which ran off the left edge
+        if (!land) RH = Math.min(RH, Math.max(170, (w * 0.4 - safe.l - 8) / (0.5 * 120 / 220 + 0.306)));
         const RW = RH * (120 / 220);
         const groundY = h * (land ? 0.86 : 0.84);
         const padH = RH * 0.09;
@@ -610,7 +613,8 @@
           const side = i % 2 ? 1 : -1;
           puffDust(G.landX + side * U.rand(0, G.RW * 0.3), G.surfaceY, side);
         }
-        rocketBody.animate([{ transform: 'scale(1,1)' }, { transform: 'scale(1.08,.9)' }, { transform: 'scale(1,1)' }], { duration: 380, easing: 'ease-out', transformOrigin: '50% 100%' });
+        rocketBody.style.transformOrigin = '50% 100%';
+        rocketBody.animate([{ transform: 'scale(1,1)' }, { transform: 'scale(1.08,.9)' }, { transform: 'scale(1,1)' }], { duration: 380, easing: 'ease-out' });
         phase = 'landed';
         await ctx.wait(450);
         S.alien.style.display = '';

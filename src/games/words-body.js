@@ -448,11 +448,11 @@
       }
 
       /** which part is at svg point (x,y)? */
-      function hitPart(x, y) {
+      function hitPart(x, y, under) {
         const act = activeParts();
-        // hands first (they move around, and can be in front of the face)
-        for (const k of ['L', 'R']) if (Math.hypot(x - arms[k].pos[0], y - arms[k].pos[1]) < 50) return 'hands';
-        for (const k of ['L', 'R']) {
+        // hands first (they move around, and can be in front of the face) — unless we want what's underneath
+        if (!under) for (const k of ['L', 'R']) if (Math.hypot(x - arms[k].pos[0], y - arms[k].pos[1]) < 50) return 'hands';
+        if (!under) for (const k of ['L', 'R']) {
           const a = arms[k];
           if (segDist(x, y, a.S[0], a.S[1], a.pos[0], a.pos[1]) < 25 && Math.hypot(x - a.S[0], y - a.S[1]) > 26) return 'arms';
         }
@@ -696,7 +696,13 @@
         const d = Math.hypot(ex, ey) || 1;
         const k = Math.min(9, d / 14);
         look = { x: (ex / d) * k, y: (ey / d) * k };
-        const part = hitPart(sp.x, sp.y);
+        let part = hitPart(sp.x, sp.y);
+        // asked for the tummy (or nose…) while Bo's clapping hands are still in front of it: the child
+        // touched the right place, so count what's under the hand
+        if ((part === 'hands' || part === 'arms') && question && !question.done && !isPart(part, question.part)) {
+          const under = hitPart(sp.x, sp.y, true);
+          if (under && isPart(under, question.part)) part = under;
+        }
         if (!part) {
           // background: tiny sparkle, and Bo repeats the question if there is one
           sfx('bubble', { vel: 0.35 });
@@ -728,7 +734,8 @@
         const again = part === lastSaidPart && nowMs - lastSaidAt < 1500;
         lastSaidPart = part;
         lastSaidAt = nowMs;
-        ctx.say(`${U.cap(w)}! ${SILLY[part]}`, again ? { mode: 'skip' } : undefined);
+        // right after an answer Bo is still praising: let that finish rather than talking over it
+        ctx.say(`${U.cap(w)}! ${SILLY[part]}`, again || question ? { mode: 'skip' } : undefined);
       }
       let lastSaidPart = '', lastSaidAt = 0;
       ctx.tap(stage, onTap, { cooldown: 40 });
@@ -777,7 +784,7 @@
         await done;
         stopIdle();
         glowOff();
-        ctx.success(q.misses === 0);
+        ctx.success(q.misses === 0 && idles === 0);
         const sp = partPoint(part);
         ctx.sfx('success', { delay: 0.2 });
         PP.fx.burst(sp.x, sp.y, { emoji: ['⭐', '🌟', '✨'], count: 8, size: 34, distance: 90 * scale + 30 });

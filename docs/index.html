@@ -396,7 +396,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
 (function () {
   'use strict';
   const PP = (window.PP = window.PP || {});
-  PP.version = '1.0.0';
+  PP.version = '1.1.0';
   PP.games = PP.games || [];
 
   const SVGNS = 'http://www.w3.org/2000/svg';
@@ -1172,7 +1172,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
    */
   const activeLoops = [];
   A.loop = function (pattern) {
-    if (!ctx) return { stop() {}, setBpm() {}, bpm: pattern.bpm, beatTime: () => 0, nextBeatTime: () => 0 };
+    if (!ctx) return { stop() {}, setBpm() {}, bpm: pattern.bpm, step: 0, beatTime: () => 0, beatDur: () => 60 / (pattern.bpm || 100) };
     let bpm = pattern.bpm || 100;
     const steps = pattern.steps || 16;
     const spb = pattern.stepsPerBeat || 4;
@@ -1188,6 +1188,14 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
     }
     function schedule() {
       if (stopped) return;
+      // If the main thread stalled (busy page, iOS throttling, a resumed context), don't fire every missed
+      // step at once — that's a loud pile-up of drums. Skip ahead and carry on from now.
+      if (next < ctx.currentTime - 0.05) {
+        const sd = 60 / bpm / spb;
+        const missed = Math.ceil((ctx.currentTime + 0.02 - next) / sd);
+        step += missed;
+        next += missed * sd;
+      }
       while (next < ctx.currentTime + 0.12) {
         const s = step % steps;
         for (const k in tracks) {
@@ -1367,14 +1375,29 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
     PP.bus.emit('speech:text', text);
     // 1) Natural recorded voice, when a voice pack is installed and covers every sentence.
     if (enabled && PP.voice && PP.voice.useClips()) {
-      const h = PP.voice.play(text, opts, (ok) => finish(item, ok));
+      const h = PP.voice.play(text, opts, (ok) => {
+        if (ok === 'fallback') {
+          // the clips couldn't play (audio still locked after an interruption, or a decode error):
+          // say it with the device voice instead of going quiet
+          if (current !== item || item.done) return;
+          clearTimeout(item.timer);
+          item.clip = null;
+          deviceSpeak(item, text, opts, r);
+          return;
+        }
+        finish(item, ok);
+      });
       if (h) {
         item.clip = h;
         item.timer = setTimeout(() => finish(item, false), estimate(text, 0.7) * 2 + 3000); // safety net
         return;
       }
     }
-    // 2) Device text-to-speech.
+    deviceSpeak(item, text, opts, r);
+  }
+
+  // 2) Device text-to-speech.
+  function deviceSpeak(item, text, opts, r) {
     if (!S.supported || !enabled) {
       item.timer = setTimeout(() => finish(item, false), estimate(text, r) * 0.6);
       return;
@@ -1387,7 +1410,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
       if (voice) { u.voice = voice; u.lang = voice.lang; } else { u.lang = 'en-US'; }
       u.rate = r;
       u.pitch = opts.pitch || pitch;
-      u.volume = 1;
+      u.volume = PP.store ? Math.max(0, Math.min(1, PP.store.settings.volume == null ? 1 : PP.store.settings.volume)) : 1; // follows the Volume setting like everything else
       u.onend = () => finish(item, true);
       u.onerror = () => finish(item, false);
       // fallback in case onend never fires (iOS quirk)
@@ -1628,9 +1651,8 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
     const gap = ((manifest.gapMs != null ? manifest.gapMs : 130) / 1000) / pr;
     let stopped = false;
     const sources = [];
-    Promise.all(keys.map(decode)).then((bufs) => {
-      if (stopped) return;
-      if (ctx.state !== 'running') ctx.resume().catch(() => {});
+    const fallback = () => { if (!stopped) { stopped = true; onEnd('fallback'); } };
+    const start = (bufs) => {
       let t = ctx.currentTime + 0.03;
       const out = PP.audio.voiceOut();
       bufs.forEach((b, i) => {
@@ -1643,7 +1665,20 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
         if (i === bufs.length - 1) s.onended = () => { if (!stopped) { stopped = true; onEnd(true); } };
         t += b.duration / pr + gap;
       });
-    }).catch(() => { if (!stopped) { stopped = true; onEnd(false); } });
+    };
+    Promise.all(keys.map(decode)).then((bufs) => {
+      if (stopped) return;
+      if (ctx.state === 'running') { start(bufs); return; }
+      // iOS can leave the audio context suspended/"interrupted" (after a call, the lock screen, app switching)
+      // until the next touch. Clips scheduled now would sit silent until the safety timer, so give the
+      // context a moment to resume and otherwise let the device voice say this line.
+      ctx.resume().catch(() => {});
+      setTimeout(() => {
+        if (stopped) return;
+        if (ctx.state === 'running') start(bufs);
+        else fallback();
+      }, 300);
+    }).catch(fallback);
     return {
       stop() {
         if (stopped) return;
@@ -1661,6 +1696,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
  *   PP.data.NUMBERS (1..20 words)
  *   PP.data.SHAPES, PP.data.shapeSVG(id, fill, opts)
  *   PP.data.WORDS, PP.data.CATEGORIES, PP.data.wordsIn(cat), PP.data.word(id), PP.data.a(word)
+ *   PP.data.isPlural(word), PP.data.whereIs(word), PP.data.thatIs(word)   (grammar for "socks", "grapes"…)
  *   PP.data.STICKERS
  *   PP.data.PRAISE, PP.data.praise(name?)
  */
@@ -1863,6 +1899,13 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
     if (PLURALISH.test(word)) return word;
     return (/^[aeiou]/i.test(word) ? 'an ' : 'a ') + word;
   };
+  // true plurals (mass nouns like milk or corn stay singular: "That's milk.")
+  const PLURAL = /^(grapes|cherries|blueberries|pancakes|pants|socks|mittens|boots|glasses|blocks)$/;
+  D.isPlural = (w) => PLURAL.test(typeof w === 'string' ? w : w.word);
+  /** "Where's the cow?" / "Where are the socks?" */
+  D.whereIs = (w) => { const word = typeof w === 'string' ? w : w.word; return D.isPlural(word) ? `Where are the ${word}?` : `Where's the ${word}?`; };
+  /** "That's a cat." / "That's milk." / "Those are grapes." */
+  D.thatIs = (w) => (D.isPlural(w) ? `Those are ${typeof w === 'string' ? w : w.word}.` : `That's ${D.a(w)}.`);
   /** 'The cow says moo!' or '' */
   D.says = (w) => (w.sound ? `The ${w.word} says ${w.sound}!` : '');
 
@@ -2007,7 +2050,15 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
     } else if (firstTry !== false) {
       g.streak++;
       g.missRun = 0;
-      if (g.streak >= 3 && g.level < 5) { g.level++; g.streak = 0; leveledUp = true; }
+      if (g.streak >= 3) {
+        g.streak = 0;
+        // Climb within the Challenge setting's range only: "Gentle" must not quietly bank levels up to 5
+        // (switching back to Automatic would then jump straight to the hardest level).
+        const before = store.level(id);
+        g.level = Math.max(g.level, levelFloor());
+        if (g.level < levelCap()) g.level++;
+        leveledUp = store.level(id) > before;
+      }
     } else {
       g.streak = 0;
     }
@@ -2028,7 +2079,14 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
     g.streak = 0;
     g.missRun = (g.missRun || 0) + 1;
     let leveledDown = false;
-    if (g.missRun >= 2 && g.level > 1) { g.level--; g.missRun = 0; leveledDown = true; }
+    if (g.missRun >= 2) {
+      g.missRun = 0;
+      // Step down within the Challenge range ("Big kid" keeps level 3 as the floor; "Gentle" caps at 2).
+      const before = store.level(id);
+      g.level = Math.min(g.level, levelCap());
+      if (g.level > levelFloor()) g.level--;
+      leveledDown = store.level(id) < before;
+    }
     store.save();
     return { leveledDown, level: store.level(id) };
   };
@@ -2381,6 +2439,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
     let mascot = null;
     let lastTouch = performance.now();
 
+    const untrack = (h) => { const i = handles.indexOf(h); if (i >= 0) handles.splice(i, 1); };
     const onStageDown = () => { lastTouch = performance.now(); };
     stage.addEventListener('pointerdown', onStageDown, { passive: true, capture: true });
 
@@ -2416,9 +2475,22 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
       sfx(name, opts) { return alive ? PP.audio.sfx(name, opts) : 0; },
       play(inst, note, opts) { return alive ? PP.audio.play(inst, note, opts) : 0; },
       drum(name, opts) { return alive ? PP.audio.drum(name, opts) : 0; },
-      sequence(events, opts) { const h = PP.audio.sequence(events, opts); handles.push(h); return h; },
-      loop(pattern) { const h = PP.audio.loop(pattern); handles.push(h); return h; },
-      rumble(opts) { const h = PP.audio.rumble(opts); handles.push(h); return h; },
+      // After exit these return silent handles: a loop started from a late promise would otherwise play forever.
+      sequence(events, opts) {
+        if (!alive) return { stop() {}, done: Promise.resolve(false), duration: 0 };
+        const h = PP.audio.sequence(events, opts);
+        handles.push(h);
+        h.done.then(() => untrack(h)); // finished melodies don't pile up over a long session
+        return h;
+      },
+      loop(pattern) {
+        if (!alive) return { stop() {}, setBpm() {}, bpm: pattern.bpm, beatTime: () => 0, beatDur: () => 60 / (pattern.bpm || 100) };
+        const h = PP.audio.loop(pattern); handles.push(h); return h;
+      },
+      rumble(opts) {
+        if (!alive) return { stop() {}, setLevel() {}, setCutoff() {} };
+        const h = PP.audio.rumble(opts); handles.push(h); return h;
+      },
 
       /** Remember the current instruction; tapping Pip (or idling) repeats it. */
       setPrompt(text) { promptText = text || ''; },
@@ -2643,7 +2715,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
    *    targetId    id of the correct choice
    *    prompt      'Find the dog!'   (also set as ctx prompt; Pip/idle repeats it)
    *    intro       optional text said before the prompt (e.g., 'Let's find animals!')
-   *    sayWrong    (choice) => text   default: `That's ${a(name)}.`
+   *    sayWrong    (choice) => text   default: PP.data.thatIs(name) ("That's a cat." / "Those are socks.")
    *    sayRight    (choice) => text   default: `${praise} ${Cap(name)}!`   (set false for none)
    *    cardColor   background css color of cards (default white)
    *    maxCard     max card px (default 260)
@@ -2713,7 +2785,8 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
             cards.forEach((c) => { if (c !== card) c.classList.add('pp-dim'); });
             const p = U.center(card);
             PP.fx.burst(p.x, p.y, { emoji: ['⭐', '✨', '🌟'], count: 7, distance: 110 });
-            ctx.success(misses === 0);
+            // an answer Pip had to light up (idle hint) isn't a first-try success: no level-up from glow-following
+            ctx.success(misses === 0 && !hinted);
             const right = o.sayRight === false ? false
               : o.sayRight ? o.sayRight(ch)
               : `${PP.data.praise()} ${U.cap(target.name)}!`;
@@ -2726,7 +2799,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
             }
             offs.forEach((f) => f());
             ctx.offResize(layout);
-            resolve({ firstTry: misses === 0, misses });
+            resolve({ firstTry: misses === 0 && !hinted, misses });
           } else {
             misses++;
             ctx.sfx('oops', { vel: 0.6 });
@@ -2734,7 +2807,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
             void card.offsetWidth;
             card.classList.add('pp-wiggle');
             if (ctx.mascot.el) ctx.mascot.mood('think');
-            const wrong = o.sayWrong ? o.sayWrong(ch) : `That's ${PP.data.a(ch.name)}.`;
+            const wrong = o.sayWrong ? o.sayWrong(ch) : PP.data.thatIs(ch.name);
             if (misses >= (o.hintAfter || 2)) {
               if (!missReported) { missReported = true; ctx.miss(); }
               hinted = true;
@@ -2929,7 +3002,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
     window.addEventListener('orientationchange', () => setTimeout(onResize, 250));
 
     PP.bus.on('games:changed', renderHome);
-    PP.bus.on('settings:changed', renderHome);
+    PP.bus.on('settings:changed', (c) => { if (!c || c.key === 'hidden') renderHome(); });
     renderHome();
   }
 
@@ -2972,6 +3045,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
   }
 
   /* ======================= home ======================= */
+  let opening = false; // a tile was tapped and its game is about to open
   function renderHome() {
     if (!gridEl) return;
     gridEl.innerHTML = '';
@@ -2986,13 +3060,20 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
       tile.append(icon, el('div', { class: 'tile-title', text: g.title }), el('div', { class: 'tile-domain', text: dom.name }));
       tile.addEventListener('pointerdown', (e) => {
         e.preventDefault();
-        if (tile.dataset.busy) return;
+        if (tile.dataset.busy || opening) return;
         tile.dataset.busy = '1';
+        opening = true;
         PP.audio.sfx('tap');
         tile.classList.add('pressed');
         homePip.mood('happy');
         PP.speech.say(g.title + '!');
-        setTimeout(() => { delete tile.dataset.busy; tile.classList.remove('pressed'); app.openGame(g.id); }, 420);
+        setTimeout(() => {
+          delete tile.dataset.busy;
+          tile.classList.remove('pressed');
+          opening = false;
+          // still on the home screen? (a parent may have opened the sticker book or settings meanwhile)
+          if (!app.current && !app.overlayPromise) app.openGame(g.id);
+        }, 420);
       });
       gridEl.appendChild(tile);
     });
@@ -3089,7 +3170,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
     const check = () => {
       if (!app.pendingSticker) return;
       const quiet = !PP.speech.speaking() && !app.overlayPromise;
-      if (quiet || performance.now() - t0 > 7000) { if (!app.overlayPromise) app.showPendingSticker(); }
+      if (!app.overlayPromise && (quiet || performance.now() - t0 > 7000)) app.showPendingSticker();
       else stickerFallback = setTimeout(check, 400);
     };
     stickerFallback = setTimeout(check, 1800);
@@ -3112,12 +3193,15 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
     const finish = () => {
       if (closed) return;
       closed = true;
+      // Already gone (the child went home, or the sleep screen took over)? Then these timers must not fly a
+      // ghost sticker across the screen or close whatever overlay is open now.
+      if (overlayEl !== ov) return;
       const bigEl = big.querySelector('.sticker-big');
       const homeBtn = document.querySelector('.pp-home-btn');
       PP.fx.flyTo(bigEl, homeBtn && !gameEl.classList.contains('hidden') ? homeBtn : { x: innerWidth - 60, y: 60 }, { scale: 0.2, duration: 650 });
       bigEl.style.visibility = 'hidden';
       PP.audio.sfx('swish');
-      setTimeout(() => closeOverlay(), 250);
+      setTimeout(() => { if (overlayEl === ov) closeOverlay(); }, 250);
       updateStickerCount();
     };
     setTimeout(() => ov.addEventListener('pointerdown', finish), 900);
@@ -3156,7 +3240,9 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
     const row = (label, control, help) => el('label', { class: 'set-row' }, el('span', { class: 'set-label', text: label }), control, help ? el('small', { class: 'set-help', text: help }) : null);
 
     const name = el('input', { type: 'text', value: s.childName || '', placeholder: 'e.g. Sam', maxlength: '20', autocomplete: 'off', autocapitalize: 'words' });
-    name.addEventListener('change', () => PP.store.set('childName', name.value.trim()));
+    const saveName = () => { const v = name.value.trim(); if (v !== (s.childName || '')) PP.store.set('childName', v); };
+    name.addEventListener('input', saveName);
+    name.addEventListener('change', saveName);
 
     // natural voice pack status + controls
     const vmSel = el('select');
@@ -3246,9 +3332,10 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
       c.addEventListener('change', () => {
         const h = new Set(PP.store.settings.hidden || []);
         if (c.checked) h.delete(g.id); else h.add(g.id);
+        if (h.size >= PP.games.length) { c.checked = true; return; } // keep at least one game on the home screen
         PP.store.set('hidden', [...h]);
       });
-      const lvl = PP.store.game(g.id).level;
+      const lvl = PP.store.level(g.id); // what the child actually plays (after the Challenge setting)
       gamesBox.appendChild(el('label', { class: 'set-game' }, c, el('span', { class: 'pp-emoji', text: typeof g.icon === 'string' && !g.icon.startsWith('<') ? g.icon : '⭐' }), el('span', { text: g.title }), el('small', { text: `level ${lvl}` })));
     });
 
@@ -3562,7 +3649,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
       `<circle cx="12" cy="11" r="4" fill="#FFB627"/></svg>`;
   }
 
-  const PENTA = ['C6', 'D6', 'E6', 'G6', 'A6', 'C7', 'D6', 'E6'];
+  const PENTA = ['C6', 'D6', 'E6', 'G6', 'A6', 'C7', 'D7', 'E7', 'G7', 'A7'];
 
   PP.registerGame({
     id: 'balloons',
@@ -3626,12 +3713,15 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
 
       /* ---------------- layout ---------------- */
       let w = 0, h = 0, BW = 100;
+      const probe = ctx.el('div', { style: { position: 'absolute', visibility: 'hidden', pointerEvents: 'none', paddingLeft: 'var(--safe-l)' } });
+      stage.appendChild(probe);
+      const leftEdge = (sw) => (sw >= 500 ? 92 : 64) + (parseFloat(getComputedStyle(probe).paddingLeft) || 0);
       function layout() {
         const s = ctx.size();
         // on rotation, carry balloons over proportionally so none are stranded off-screen
         if (w && s.w && s.w !== w && typeof balloons !== 'undefined') {
           const kx = s.w / w;
-          balloons.forEach((b) => { b.x0 = U.clamp(b.x0 * kx, s.w >= 500 ? 92 : 64, Math.max(0, s.w - b.W - 6)); });
+          balloons.forEach((b) => { b.x0 = U.clamp(b.x0 * kx, leftEdge(s.w), Math.max(0, s.w - b.W - 6)); });
         }
         w = s.w; h = s.h;
         const mn = Math.min(w, h);
@@ -3673,7 +3763,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
       /* ---------------- balloons ---------------- */
       function chooseX(bw) {
         // keep clear of the home button's column (top-left) so reaching for a balloon never exits the game
-        const lo = w >= 500 ? 92 : 64, hi = Math.max(lo + 1, w - bw - 6);
+        const lo = leftEdge(w), hi = Math.max(lo + 1, w - bw - 6);
         let best = lo + Math.random() * (hi - lo), bestScore = -1;
         for (let k = 0; k < 8; k++) {
           const x = lo + Math.random() * (hi - lo);
@@ -3885,7 +3975,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
         const order = ctx.shuffle(Array.from({ length: n }, (_, i) => i));
         order.forEach((slot, k) => {
           ctx.setTimeout(() => {
-            const lo = w >= 500 ? 92 : 64;
+            const lo = leftEdge(w);
             const x = lo + (slot + 0.5) * ((w - lo - BW * 0.9) / n) + U.rand(-10, 10);
             spawn({ party: true, x: U.clamp(x, lo, w - BW), color: pal[(slot + k) % pal.length], y0: U.rand(0, 60) });
           }, k * 85);
@@ -3996,7 +4086,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
           ctx.play('kalimba', ctx.pick(['C5', 'E5', 'G5']), { vel: 0.35 });
           return;
         }
-        ctx.play('bell', ctx.pick(PENTA), { vel: 0.18 });
+        ctx.play('bell', ctx.pick(PENTA.slice(0, 8)), { vel: 0.18 });
         const tw = U.el('div', { class: 'bp-twinkle pp-emoji', text: ctx.pick(['✨', '⭐', '💫']), style: { left: pt.x + 'px', top: pt.y + 'px' } });
         fxl.appendChild(tw);
         tw.animate([
@@ -5012,7 +5102,8 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
     '🎩': 'hat', '🎱': 'ball', '🕶️': 'sunglasses',
     '☁️': 'cloud', '⛄': 'snowman', '🥚': 'egg', '🐑': 'sheep', '🥛': 'milk',
   };
-  const PLURAL = /^(cherries|blueberries|grapes|jeans|sunglasses|milk|corn|cheese|broccoli|water drop)$/;
+  const PLURAL = /^(cherries|blueberries|grapes|jeans|sunglasses|milk|corn|cheese|broccoli)$/; // no "a"
+  const THINGS_PL = /(cherries|blueberries|grapes|jeans|sunglasses)$/; // "Those are red cherries."
   function thingPhrase(color, emoji) {
     const n = THING_NAMES[emoji] || 'one';
     if (n === color.name) return `an ${n}`; // "an orange"
@@ -5095,7 +5186,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
         const C = U.cap(c.name);
         L.push(`Find something ${c.name}!`, `${C}!`, `That's the ${c.name} box.`, `Where does ${c.name} go?`, `Find the ${c.name} box!`);
         TOY_IDS.forEach((k) => L.push(`${C} ${k}!`, `Where does the ${c.name} ${k} go?`, `${C} ${k}, ${c.name} box!`));
-        (PP.data.COLOR_THINGS[c.id] || []).forEach((e) => { const p = thingPhrase(c, e); L.push(`That's ${p}.`, `${U.cap(p)}!`); });
+        (PP.data.COLOR_THINGS[c.id] || []).forEach((e) => { const p = thingPhrase(c, e); L.push(`${THINGS_PL.test(p) ? 'Those are' : "That's"} ${p}.`, `${U.cap(p)}!`); });
       });
       return L;
     },
@@ -5482,7 +5573,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
             prompt: `Find something ${target.name}!`,
             maxCard: 250,
             idleMs: 8000,
-            sayWrong: (ch) => `That's ${ch.name}.`,
+            sayWrong: (ch) => `${THINGS_PL.test(ch.name) ? 'Those are' : "That's"} ${ch.name}.`,
             sayRight: (ch) => `${ctx.praise()} ${U.cap(ch.name)}!`,
           });
           await ctx.wait(200);
@@ -6021,6 +6112,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
       function playMystery(an) {
         stopMystery();
         stopPerf();
+        if (quiz) quiz.heard = true;
         const lvl = ctx.level;
         const hints = lvl <= 2;
         const hits = hitsFor(an.id, lvl, stageId === 'mixed');
@@ -6123,12 +6215,13 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
       async function quizTap(an) {
         const q = quiz;
         if (!q || q.done) { perform(an); return; }
+        if (!q.heard) { perform(an); return; } // nothing to guess yet: "Listen! Who is it?" is still coming
         if (an === q.target) {
           q.done = true;
           stopMystery();
           replay.classList.remove('on');
           animals.forEach(glowOff);
-          ctx.success(q.misses === 0);
+          ctx.success(q.misses === 0 && q.idles < 2);
           reveal.firstChild.textContent = an.def.emoji;
           curtain.classList.add('open');
           ctx.mascot.mood('cheer');
@@ -6167,7 +6260,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
         const g = gen;
         const target = order[r];
         await new Promise((resolve) => {
-          quiz = { target, misses: 0, done: false, resolve, token: 0, idles: 0 };
+          quiz = { target, misses: 0, done: false, resolve, token: 0, idles: 0, heard: false };
           const q = quiz;
           phase = 'quiz';
           ctx.setPrompt('Who made that sound?');
@@ -7401,6 +7494,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
       let mode = 'free'; // 'free' | 'magic' | 'done'
       let song = null, notes = null, idx = 0;
       let offTaps = 0, lastAdvance = 0, lastChordAt = 0, missDone = false;
+      const aimed = new Set(); // song notes the child played by tapping the glowing bar itself
       let demo = null; // {tl, kind:'full'|'phrase'}
       let flat = false; // B-flat bar mounted?
       let idleCount = 0;
@@ -7716,6 +7810,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
         idx = 0;
         offTaps = 0;
         missDone = false;
+        aimed.clear();
         lastAdvance = 0;
         mode = 'magic';
         idleCount = 0;
@@ -7758,6 +7853,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
           if (now - lastAdvance < 130) { hitBar(i, { soft: true, x, y }); return; }
           lastAdvance = now;
           if (i !== ti) hitBar(i, { soft: true, x, y }); // the finger's bar twitches, the song's bar sings
+          else aimed.add(idx);
           playSongNote(idx);
         } else {
           // aiming levels: other bars just play softly — never a penalty
@@ -7789,7 +7885,12 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
         ringOff();
         mallet.classList.remove('on');
         setActiveBtn();
-        const firstTry = ctx.level <= 2 || offTaps <= Math.max(3, notes.length * 0.2);
+        // Levels 1-2: any tap plays the next note, so finishing proves nothing by itself. Only a song played
+        // mostly on the glowing bars counts toward "tap the glowing bar" (level 3); otherwise it's neutral
+        // (sticker progress only) instead of pushing a bar-masher up a level every three songs.
+        const firstTry = ctx.level <= 2
+          ? (aimed.size >= notes.length * 0.6 ? true : null)
+          : offTaps <= Math.max(3, notes.length * 0.2);
         await ctx.wait(650);
         wave(true, false);
         // a little cadence in the song's key, then applause
@@ -8354,6 +8455,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
         removeBubble(b);
         const p = popFx(b, true);
         ctx.sfx('pop', { vel: 0.9 });
+        if (mode === 'howmany') return; // a straggler whooshing away: just pop it, Pip is counting fish
         ctx.play('marimba', SCALE[b.n - 1] || 'C6', { vel: 0.55, delay: 0.03 });
         PP.fx.floatText(p.x, p.y - b.D * 0.2, String(b.n), { color: '#fff', size: numSize() });
         if (mode === 'play' && target) {
@@ -10176,7 +10278,10 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
         const sr = stage.getBoundingClientRect(), pr = probe.getBoundingClientRect();
         const safe = { l: Math.max(0, pr.left - sr.left), t: Math.max(0, pr.top - sr.top), r: Math.max(0, sr.right - pr.right), b: Math.max(0, sr.bottom - pr.bottom) };
         const s = Math.min(w, h), land = w > h * 1.15;
-        const RH = land ? U.clamp(h * 0.58, 150, 420) : U.clamp(h * 0.36, 170, 440);
+        let RH = land ? U.clamp(h * 0.58, 150, 420) : U.clamp(h * 0.36, 170, 440);
+        // narrow portrait (iPhone): keep the launch tower on screen — it stands left of the rocket at
+        // padX - RW/2 - 0.3 * tower height, which ran off the left edge
+        if (!land) RH = Math.min(RH, Math.max(170, (w * 0.4 - safe.l - 8) / (0.5 * 120 / 220 + 0.306)));
         const RW = RH * (120 / 220);
         const groundY = h * (land ? 0.86 : 0.84);
         const padH = RH * 0.09;
@@ -10591,7 +10696,8 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
           const side = i % 2 ? 1 : -1;
           puffDust(G.landX + side * U.rand(0, G.RW * 0.3), G.surfaceY, side);
         }
-        rocketBody.animate([{ transform: 'scale(1,1)' }, { transform: 'scale(1.08,.9)' }, { transform: 'scale(1,1)' }], { duration: 380, easing: 'ease-out', transformOrigin: '50% 100%' });
+        rocketBody.style.transformOrigin = '50% 100%';
+        rocketBody.animate([{ transform: 'scale(1,1)' }, { transform: 'scale(1.08,.9)' }, { transform: 'scale(1,1)' }], { duration: 380, easing: 'ease-out' });
         phase = 'landed';
         await ctx.wait(450);
         S.alien.style.display = '';
@@ -11859,11 +11965,11 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
       }
 
       /** which part is at svg point (x,y)? */
-      function hitPart(x, y) {
+      function hitPart(x, y, under) {
         const act = activeParts();
-        // hands first (they move around, and can be in front of the face)
-        for (const k of ['L', 'R']) if (Math.hypot(x - arms[k].pos[0], y - arms[k].pos[1]) < 50) return 'hands';
-        for (const k of ['L', 'R']) {
+        // hands first (they move around, and can be in front of the face) — unless we want what's underneath
+        if (!under) for (const k of ['L', 'R']) if (Math.hypot(x - arms[k].pos[0], y - arms[k].pos[1]) < 50) return 'hands';
+        if (!under) for (const k of ['L', 'R']) {
           const a = arms[k];
           if (segDist(x, y, a.S[0], a.S[1], a.pos[0], a.pos[1]) < 25 && Math.hypot(x - a.S[0], y - a.S[1]) > 26) return 'arms';
         }
@@ -12107,7 +12213,13 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
         const d = Math.hypot(ex, ey) || 1;
         const k = Math.min(9, d / 14);
         look = { x: (ex / d) * k, y: (ey / d) * k };
-        const part = hitPart(sp.x, sp.y);
+        let part = hitPart(sp.x, sp.y);
+        // asked for the tummy (or nose…) while Bo's clapping hands are still in front of it: the child
+        // touched the right place, so count what's under the hand
+        if ((part === 'hands' || part === 'arms') && question && !question.done && !isPart(part, question.part)) {
+          const under = hitPart(sp.x, sp.y, true);
+          if (under && isPart(under, question.part)) part = under;
+        }
         if (!part) {
           // background: tiny sparkle, and Bo repeats the question if there is one
           sfx('bubble', { vel: 0.35 });
@@ -12139,7 +12251,8 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
         const again = part === lastSaidPart && nowMs - lastSaidAt < 1500;
         lastSaidPart = part;
         lastSaidAt = nowMs;
-        ctx.say(`${U.cap(w)}! ${SILLY[part]}`, again ? { mode: 'skip' } : undefined);
+        // right after an answer Bo is still praising: let that finish rather than talking over it
+        ctx.say(`${U.cap(w)}! ${SILLY[part]}`, again || question ? { mode: 'skip' } : undefined);
       }
       let lastSaidPart = '', lastSaidAt = 0;
       ctx.tap(stage, onTap, { cooldown: 40 });
@@ -12188,7 +12301,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
         await done;
         stopIdle();
         glowOff();
-        ctx.success(q.misses === 0);
+        ctx.success(q.misses === 0 && idles === 0);
         const sp = partPoint(part);
         ctx.sfx('success', { delay: 0.2 });
         PP.fx.burst(sp.x, sp.y, { emoji: ['⭐', '🌟', '✨'], count: 8, size: 34, distance: 90 * scale + 30 });
@@ -12303,7 +12416,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
 
   const BASIC = ['animals', 'vehicles', 'food'];
   const MORE = ['animals', 'vehicles', 'food', 'home', 'body', 'clothes', 'nature'];
-  const PROMPTS = [(w) => `Where's the ${w}?`, (w) => `Find the ${w}!`, (w) => `Can you find the ${w}?`, (w) => `Tap the ${w}!`];
+  const PROMPTS = [(w) => PP.data.whereIs(w), (w) => `Find the ${w}!`, (w) => `Can you find the ${w}?`, (w) => `Tap the ${w}!`];
 
   PP.registerGame({
     id: 'findit',
@@ -13349,7 +13462,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
       function memoryTap(c) {
         const m = memory;
         if (!m || m.done) { ctx.sfx('tap', { vel: 0.4 }); return; }
-        if (c.state === 'open') { bounceItem(c); ctx.say(`${nameOf(c.word)}! Where's the ${m.target.word.word}?`); return; }
+        if (c.state === 'open') { bounceItem(c); ctx.say(`${nameOf(c.word)}! ${PP.data.whereIs(m.target.word)}`); return; }
         if (c.state !== 'closed') { rattle(c, false); return; }
         if (c === m.target) {
           m.done = true;
@@ -13358,8 +13471,8 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
           (async () => {
             await openCell(c, { fast: true });
             const p = U.center(c.el);
-            ctx.success(m.misses === 0);
-            await ctx.celebrate({ x: p.x, y: p.y, say: `Peekaboo! There's the ${c.word.word}! ${ctx.praise()}` });
+            ctx.success(m.misses === 0 && !m.unglow);
+            await ctx.celebrate({ x: p.x, y: p.y, say: `Peekaboo! ${PP.data.isPlural(c.word) ? 'There are' : "There's"} the ${c.word.word}! ${ctx.praise()}` });
             m.resolve();
           })();
         } else {
@@ -13368,7 +13481,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
           ctx.mascot.mood('think');
           (async () => {
             await openCell(c, { fast: true });
-            ctx.say(`${nameOf(c.word)}! Where's the ${m.target.word.word}?`);
+            ctx.say(`${nameOf(c.word)}! ${PP.data.whereIs(m.target.word)}`);
             if (m.misses >= 2) {
               if (!m.missReported) { m.missReported = true; ctx.miss(); }
               if (!m.unglow) m.unglow = PP.fx.glow(m.target.el);
@@ -13390,7 +13503,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-fam
         await settle();
         ctx.sfx('whoosh', { vel: 0.4 });
         await ctx.wait(300);
-        const prompt = `Where's the ${w.word}?`;
+        const prompt = PP.data.whereIs(w);
         ctx.setPrompt(prompt);
         await new Promise((resolve) => {
           memory = { target, misses: 0, done: false, resolve, missReported: false, unglow: null, stopIdle: () => {} };

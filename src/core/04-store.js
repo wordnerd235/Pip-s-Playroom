@@ -92,7 +92,15 @@
     } else if (firstTry !== false) {
       g.streak++;
       g.missRun = 0;
-      if (g.streak >= 3 && g.level < 5) { g.level++; g.streak = 0; leveledUp = true; }
+      if (g.streak >= 3) {
+        g.streak = 0;
+        // Climb within the Challenge setting's range only: "Gentle" must not quietly bank levels up to 5
+        // (switching back to Automatic would then jump straight to the hardest level).
+        const before = store.level(id);
+        g.level = Math.max(g.level, levelFloor());
+        if (g.level < levelCap()) g.level++;
+        leveledUp = store.level(id) > before;
+      }
     } else {
       g.streak = 0;
     }
@@ -113,7 +121,14 @@
     g.streak = 0;
     g.missRun = (g.missRun || 0) + 1;
     let leveledDown = false;
-    if (g.missRun >= 2 && g.level > 1) { g.level--; g.missRun = 0; leveledDown = true; }
+    if (g.missRun >= 2) {
+      g.missRun = 0;
+      // Step down within the Challenge range ("Big kid" keeps level 3 as the floor; "Gentle" caps at 2).
+      const before = store.level(id);
+      g.level = Math.min(g.level, levelCap());
+      if (g.level > levelFloor()) g.level--;
+      leveledDown = store.level(id) < before;
+    }
     store.save();
     return { leveledDown, level: store.level(id) };
   };

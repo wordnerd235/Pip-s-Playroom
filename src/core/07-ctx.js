@@ -20,6 +20,7 @@
     let mascot = null;
     let lastTouch = performance.now();
 
+    const untrack = (h) => { const i = handles.indexOf(h); if (i >= 0) handles.splice(i, 1); };
     const onStageDown = () => { lastTouch = performance.now(); };
     stage.addEventListener('pointerdown', onStageDown, { passive: true, capture: true });
 
@@ -55,9 +56,22 @@
       sfx(name, opts) { return alive ? PP.audio.sfx(name, opts) : 0; },
       play(inst, note, opts) { return alive ? PP.audio.play(inst, note, opts) : 0; },
       drum(name, opts) { return alive ? PP.audio.drum(name, opts) : 0; },
-      sequence(events, opts) { const h = PP.audio.sequence(events, opts); handles.push(h); return h; },
-      loop(pattern) { const h = PP.audio.loop(pattern); handles.push(h); return h; },
-      rumble(opts) { const h = PP.audio.rumble(opts); handles.push(h); return h; },
+      // After exit these return silent handles: a loop started from a late promise would otherwise play forever.
+      sequence(events, opts) {
+        if (!alive) return { stop() {}, done: Promise.resolve(false), duration: 0 };
+        const h = PP.audio.sequence(events, opts);
+        handles.push(h);
+        h.done.then(() => untrack(h)); // finished melodies don't pile up over a long session
+        return h;
+      },
+      loop(pattern) {
+        if (!alive) return { stop() {}, setBpm() {}, bpm: pattern.bpm, beatTime: () => 0, beatDur: () => 60 / (pattern.bpm || 100) };
+        const h = PP.audio.loop(pattern); handles.push(h); return h;
+      },
+      rumble(opts) {
+        if (!alive) return { stop() {}, setLevel() {}, setCutoff() {} };
+        const h = PP.audio.rumble(opts); handles.push(h); return h;
+      },
 
       /** Remember the current instruction; tapping Pip (or idling) repeats it. */
       setPrompt(text) { promptText = text || ''; },

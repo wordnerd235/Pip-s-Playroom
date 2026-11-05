@@ -3,6 +3,7 @@
  *   PP.data.NUMBERS (1..20 words)
  *   PP.data.SHAPES, PP.data.shapeSVG(id, fill, opts)
  *   PP.data.WORDS, PP.data.CATEGORIES, PP.data.wordsIn(cat), PP.data.word(id), PP.data.a(word)
+ *   PP.data.isPlural(word), PP.data.whereIs(word), PP.data.thatIs(word)   (grammar for "socks", "grapes"…)
  *   PP.data.STICKERS
  *   PP.data.PRAISE, PP.data.praise(name?)
  */
@@ -205,6 +206,13 @@
     if (PLURALISH.test(word)) return word;
     return (/^[aeiou]/i.test(word) ? 'an ' : 'a ') + word;
   };
+  // true plurals (mass nouns like milk or corn stay singular: "That's milk.")
+  const PLURAL = /^(grapes|cherries|blueberries|pancakes|pants|socks|mittens|boots|glasses|blocks)$/;
+  D.isPlural = (w) => PLURAL.test(typeof w === 'string' ? w : w.word);
+  /** "Where's the cow?" / "Where are the socks?" */
+  D.whereIs = (w) => { const word = typeof w === 'string' ? w : w.word; return D.isPlural(word) ? `Where are the ${word}?` : `Where's the ${word}?`; };
+  /** "That's a cat." / "That's milk." / "Those are grapes." */
+  D.thatIs = (w) => (D.isPlural(w) ? `Those are ${typeof w === 'string' ? w : w.word}.` : `That's ${D.a(w)}.`);
   /** 'The cow says moo!' or '' */
   D.says = (w) => (w.sound ? `The ${w.word} says ${w.sound}!` : '');
 

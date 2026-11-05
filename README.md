@@ -20,5 +20,8 @@ Press and hold the gear on the home screen for 2 seconds. From there you can:
 
 **Lock the iPad into the app:** go to Settings → Accessibility → Guided Access, turn it on, then triple-click the top button inside the app.
 
+## Versions
+Every release is tagged in git (`v1.0`, `v1.1`, …), and `CHANGELOG.md` lists what changed in each one and how to put an older version back.
+
 ## Working on it
 See `CLAUDE.md` for the code layout and build and test commands, and `GAME_API.md` for how activities are built.

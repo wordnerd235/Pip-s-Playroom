@@ -19,7 +19,7 @@
 
   const BASIC = ['animals', 'vehicles', 'food'];
   const MORE = ['animals', 'vehicles', 'food', 'home', 'body', 'clothes', 'nature'];
-  const PROMPTS = [(w) => `Where's the ${w}?`, (w) => `Find the ${w}!`, (w) => `Can you find the ${w}?`, (w) => `Tap the ${w}!`];
+  const PROMPTS = [(w) => PP.data.whereIs(w), (w) => `Find the ${w}!`, (w) => `Can you find the ${w}?`, (w) => `Tap the ${w}!`];
 
   PP.registerGame({
     id: 'findit',

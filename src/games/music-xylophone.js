@@ -337,6 +337,7 @@
       let mode = 'free'; // 'free' | 'magic' | 'done'
       let song = null, notes = null, idx = 0;
       let offTaps = 0, lastAdvance = 0, lastChordAt = 0, missDone = false;
+      const aimed = new Set(); // song notes the child played by tapping the glowing bar itself
       let demo = null; // {tl, kind:'full'|'phrase'}
       let flat = false; // B-flat bar mounted?
       let idleCount = 0;
@@ -652,6 +653,7 @@
         idx = 0;
         offTaps = 0;
         missDone = false;
+        aimed.clear();
         lastAdvance = 0;
         mode = 'magic';
         idleCount = 0;
@@ -694,6 +696,7 @@
           if (now - lastAdvance < 130) { hitBar(i, { soft: true, x, y }); return; }
           lastAdvance = now;
           if (i !== ti) hitBar(i, { soft: true, x, y }); // the finger's bar twitches, the song's bar sings
+          else aimed.add(idx);
           playSongNote(idx);
         } else {
           // aiming levels: other bars just play softly — never a penalty
@@ -725,7 +728,12 @@
         ringOff();
         mallet.classList.remove('on');
         setActiveBtn();
-        const firstTry = ctx.level <= 2 || offTaps <= Math.max(3, notes.length * 0.2);
+        // Levels 1-2: any tap plays the next note, so finishing proves nothing by itself. Only a song played
+        // mostly on the glowing bars counts toward "tap the glowing bar" (level 3); otherwise it's neutral
+        // (sticker progress only) instead of pushing a bar-masher up a level every three songs.
+        const firstTry = ctx.level <= 2
+          ? (aimed.size >= notes.length * 0.6 ? true : null)
+          : offTaps <= Math.max(3, notes.length * 0.2);
         await ctx.wait(650);
         wave(true, false);
         // a little cadence in the song's key, then applause

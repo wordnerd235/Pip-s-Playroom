@@ -102,7 +102,7 @@
     window.addEventListener('orientationchange', () => setTimeout(onResize, 250));
 
     PP.bus.on('games:changed', renderHome);
-    PP.bus.on('settings:changed', renderHome);
+    PP.bus.on('settings:changed', (c) => { if (!c || c.key === 'hidden') renderHome(); });
     renderHome();
   }
 
@@ -145,6 +145,7 @@
   }
 
   /* ======================= home ======================= */
+  let opening = false; // a tile was tapped and its game is about to open
   function renderHome() {
     if (!gridEl) return;
     gridEl.innerHTML = '';
@@ -159,13 +160,20 @@
       tile.append(icon, el('div', { class: 'tile-title', text: g.title }), el('div', { class: 'tile-domain', text: dom.name }));
       tile.addEventListener('pointerdown', (e) => {
         e.preventDefault();
-        if (tile.dataset.busy) return;
+        if (tile.dataset.busy || opening) return;
         tile.dataset.busy = '1';
+        opening = true;
         PP.audio.sfx('tap');
         tile.classList.add('pressed');
         homePip.mood('happy');
         PP.speech.say(g.title + '!');
-        setTimeout(() => { delete tile.dataset.busy; tile.classList.remove('pressed'); app.openGame(g.id); }, 420);
+        setTimeout(() => {
+          delete tile.dataset.busy;
+          tile.classList.remove('pressed');
+          opening = false;
+          // still on the home screen? (a parent may have opened the sticker book or settings meanwhile)
+          if (!app.current && !app.overlayPromise) app.openGame(g.id);
+        }, 420);
       });
       gridEl.appendChild(tile);
     });
@@ -262,7 +270,7 @@
     const check = () => {
       if (!app.pendingSticker) return;
       const quiet = !PP.speech.speaking() && !app.overlayPromise;
-      if (quiet || performance.now() - t0 > 7000) { if (!app.overlayPromise) app.showPendingSticker(); }
+      if (!app.overlayPromise && (quiet || performance.now() - t0 > 7000)) app.showPendingSticker();
       else stickerFallback = setTimeout(check, 400);
     };
     stickerFallback = setTimeout(check, 1800);
@@ -285,12 +293,15 @@
     const finish = () => {
       if (closed) return;
       closed = true;
+      // Already gone (the child went home, or the sleep screen took over)? Then these timers must not fly a
+      // ghost sticker across the screen or close whatever overlay is open now.
+      if (overlayEl !== ov) return;
       const bigEl = big.querySelector('.sticker-big');
       const homeBtn = document.querySelector('.pp-home-btn');
       PP.fx.flyTo(bigEl, homeBtn && !gameEl.classList.contains('hidden') ? homeBtn : { x: innerWidth - 60, y: 60 }, { scale: 0.2, duration: 650 });
       bigEl.style.visibility = 'hidden';
       PP.audio.sfx('swish');
-      setTimeout(() => closeOverlay(), 250);
+      setTimeout(() => { if (overlayEl === ov) closeOverlay(); }, 250);
       updateStickerCount();
     };
     setTimeout(() => ov.addEventListener('pointerdown', finish), 900);
@@ -329,7 +340,9 @@
     const row = (label, control, help) => el('label', { class: 'set-row' }, el('span', { class: 'set-label', text: label }), control, help ? el('small', { class: 'set-help', text: help }) : null);
 
     const name = el('input', { type: 'text', value: s.childName || '', placeholder: 'e.g. Sam', maxlength: '20', autocomplete: 'off', autocapitalize: 'words' });
-    name.addEventListener('change', () => PP.store.set('childName', name.value.trim()));
+    const saveName = () => { const v = name.value.trim(); if (v !== (s.childName || '')) PP.store.set('childName', v); };
+    name.addEventListener('input', saveName);
+    name.addEventListener('change', saveName);
 
     // natural voice pack status + controls
     const vmSel = el('select');
@@ -419,9 +432,10 @@
       c.addEventListener('change', () => {
         const h = new Set(PP.store.settings.hidden || []);
         if (c.checked) h.delete(g.id); else h.add(g.id);
+        if (h.size >= PP.games.length) { c.checked = true; return; } // keep at least one game on the home screen
         PP.store.set('hidden', [...h]);
       });
-      const lvl = PP.store.game(g.id).level;
+      const lvl = PP.store.level(g.id); // what the child actually plays (after the Challenge setting)
       gamesBox.appendChild(el('label', { class: 'set-game' }, c, el('span', { class: 'pp-emoji', text: typeof g.icon === 'string' && !g.icon.startsWith('<') ? g.icon : '⭐' }), el('span', { text: g.title }), el('small', { text: `level ${lvl}` })));
     });
 

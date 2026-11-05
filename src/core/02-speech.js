@@ -125,14 +125,29 @@
     PP.bus.emit('speech:text', text);
     // 1) Natural recorded voice, when a voice pack is installed and covers every sentence.
     if (enabled && PP.voice && PP.voice.useClips()) {
-      const h = PP.voice.play(text, opts, (ok) => finish(item, ok));
+      const h = PP.voice.play(text, opts, (ok) => {
+        if (ok === 'fallback') {
+          // the clips couldn't play (audio still locked after an interruption, or a decode error):
+          // say it with the device voice instead of going quiet
+          if (current !== item || item.done) return;
+          clearTimeout(item.timer);
+          item.clip = null;
+          deviceSpeak(item, text, opts, r);
+          return;
+        }
+        finish(item, ok);
+      });
       if (h) {
         item.clip = h;
         item.timer = setTimeout(() => finish(item, false), estimate(text, 0.7) * 2 + 3000); // safety net
         return;
       }
     }
-    // 2) Device text-to-speech.
+    deviceSpeak(item, text, opts, r);
+  }
+
+  // 2) Device text-to-speech.
+  function deviceSpeak(item, text, opts, r) {
     if (!S.supported || !enabled) {
       item.timer = setTimeout(() => finish(item, false), estimate(text, r) * 0.6);
       return;
@@ -145,7 +160,7 @@
       if (voice) { u.voice = voice; u.lang = voice.lang; } else { u.lang = 'en-US'; }
       u.rate = r;
       u.pitch = opts.pitch || pitch;
-      u.volume = 1;
+      u.volume = PP.store ? Math.max(0, Math.min(1, PP.store.settings.volume == null ? 1 : PP.store.settings.volume)) : 1; // follows the Volume setting like everything else
       u.onend = () => finish(item, true);
       u.onerror = () => finish(item, false);
       // fallback in case onend never fires (iOS quirk)

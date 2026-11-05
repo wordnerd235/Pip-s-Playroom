@@ -506,6 +506,7 @@
       function playMystery(an) {
         stopMystery();
         stopPerf();
+        if (quiz) quiz.heard = true;
         const lvl = ctx.level;
         const hints = lvl <= 2;
         const hits = hitsFor(an.id, lvl, stageId === 'mixed');
@@ -608,12 +609,13 @@
       async function quizTap(an) {
         const q = quiz;
         if (!q || q.done) { perform(an); return; }
+        if (!q.heard) { perform(an); return; } // nothing to guess yet: "Listen! Who is it?" is still coming
         if (an === q.target) {
           q.done = true;
           stopMystery();
           replay.classList.remove('on');
           animals.forEach(glowOff);
-          ctx.success(q.misses === 0);
+          ctx.success(q.misses === 0 && q.idles < 2);
           reveal.firstChild.textContent = an.def.emoji;
           curtain.classList.add('open');
           ctx.mascot.mood('cheer');
@@ -652,7 +654,7 @@
         const g = gen;
         const target = order[r];
         await new Promise((resolve) => {
-          quiz = { target, misses: 0, done: false, resolve, token: 0, idles: 0 };
+          quiz = { target, misses: 0, done: false, resolve, token: 0, idles: 0, heard: false };
           const q = quiz;
           phase = 'quiz';
           ctx.setPrompt('Who made that sound?');

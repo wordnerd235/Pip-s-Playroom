@@ -624,7 +624,7 @@
    */
   const activeLoops = [];
   A.loop = function (pattern) {
-    if (!ctx) return { stop() {}, setBpm() {}, bpm: pattern.bpm, beatTime: () => 0, nextBeatTime: () => 0 };
+    if (!ctx) return { stop() {}, setBpm() {}, bpm: pattern.bpm, step: 0, beatTime: () => 0, beatDur: () => 60 / (pattern.bpm || 100) };
     let bpm = pattern.bpm || 100;
     const steps = pattern.steps || 16;
     const spb = pattern.stepsPerBeat || 4;
@@ -640,6 +640,14 @@
     }
     function schedule() {
       if (stopped) return;
+      // If the main thread stalled (busy page, iOS throttling, a resumed context), don't fire every missed
+      // step at once — that's a loud pile-up of drums. Skip ahead and carry on from now.
+      if (next < ctx.currentTime - 0.05) {
+        const sd = 60 / bpm / spb;
+        const missed = Math.ceil((ctx.currentTime + 0.02 - next) / sd);
+        step += missed;
+        next += missed * sd;
+      }
       while (next < ctx.currentTime + 0.12) {
         const s = step % steps;
         for (const k in tracks) {
